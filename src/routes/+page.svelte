@@ -2,6 +2,10 @@
 	const forceLock = async () => {
 		try {
 			await document.documentElement.requestFullscreen();
+
+			if ('keyboard' in navigator) {
+				await navigator.keyboard.lock(['Escape']);
+			}
 		} catch (error) {
 			console.log(error);
 		}
