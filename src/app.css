@@ -1,0 +1,18 @@
+:root {
+	color-scheme: light dark;
+}
+
+body {
+	font-family: system-ui, sans-serif;
+}
+
+h1 {
+  font-family: "Space Mono", sans-serif;
+  font-size: 5em;
+  font-weight: 400;
+  padding: 10px;
+}
+
+.session{
+  font-family: "Doto", sans-serif;
+}
