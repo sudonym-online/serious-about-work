@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Status, Task, NavigatorWithKeyboardLock } from '$lib/types';
+
 	let fullscreen = $state(false);
 	let terminating = $state(false);
 	let sessLength = $state(0);
@@ -15,19 +17,6 @@
 		draft.description.trim().length > 0 ||
 		draft.due.trim().length 		> 0
 	);
-
-	type Status = 'todo' | 'in-progress' | 'done';
-
-	interface Task {
-		name: string;
-		description: string;
-		due: Date;
-		status: Status;
-	}
-
-	interface NavigatorWithKeyboardLock extends Navigator {
-		keyboard: { lock(keys: string[]): Promise<void> };
-	}
 
 	let tasks: Task[] = $state([]);
 
@@ -69,7 +58,7 @@
 		tasks.push({ 
 			name: draft.name || 'Untitled Task',
 			description: draft.description || 'No Description',
-			due: new Date(draft.due) || Date.now(),
+			due: new Date(draft.due),
 			status: draft.status
 		});
 		draft = {
