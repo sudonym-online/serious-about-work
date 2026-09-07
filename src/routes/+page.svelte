@@ -2,10 +2,34 @@
 	let fullscreen = $state(false);
 	let terminating = $state(false);
 	let sessLength = $state(0);
-	
+
+	let draft = $state({
+		name: '',
+		description: '',
+		due: '',
+		status: 'todo' as Status
+	});
+
+	const canAdd = $derived(
+		draft.name.trim().length 		> 0 ||
+		draft.description.trim().length > 0 ||
+		draft.due.trim().length 		> 0
+	);
+
+	type Status = 'todo' | 'in-progress' | 'done';
+
+	interface Task {
+		name: string;
+		description: string;
+		due: Date;
+		status: Status;
+	}
+
 	interface NavigatorWithKeyboardLock extends Navigator {
 		keyboard: { lock(keys: string[]): Promise<void> };
 	}
+
+	let tasks: Task[] = $state([]);
 
 	const forceLock = async () => {
 		try {
@@ -37,6 +61,25 @@
 		}
 	}
 
+	const addTask = () => {
+		if (!fullscreen) return;
+		if (terminating) return;
+		if (!canAdd) return;
+
+		tasks.push({ 
+			name: draft.name || 'Untitled Task',
+			description: draft.description || 'No Description',
+			due: new Date(draft.due) || Date.now(),
+			status: draft.status
+		});
+		draft = {
+			name: '',
+			description: '',
+			due: '',
+			status: 'todo'
+		};
+	}
+
 	$effect(() => {
 		document.addEventListener('fullscreenchange', changeFullscreen);
 		document.addEventListener('keydown', handleKeyDown);
@@ -65,6 +108,46 @@
 {#if fullscreen}
 	<h2 class="session">SESSION ACTIVE</h2>
 	<p class="length">Session Length: {sessLength/1000} seconds</p>
+
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Description</th>
+				<th>Due</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each tasks as task}
+				<tr>
+					<td>{task.name}</td>
+					<td>{task.description}</td>
+					<td>{task.due.toLocaleDateString()}</td>
+					<td>{task.status}</td>
+				</tr>
+			{/each}
+		</tbody>
+		<tfoot>
+			<tr>
+				<th><input type="text" placeholder="Name" bind:value={draft.name} /></th>
+				<th><input type="text" placeholder="Description" bind:value={draft.description} /></th>
+				<th><input type="date" bind:value={draft.due} /></th>
+				<th>
+					<select bind:value={draft.status}>
+						<option value="todo">Todo</option>
+						<option value="in-progress">In Progress</option>
+						<option value="done">Done</option>
+					</select>
+				</th>
+			</tr>
+		</tfoot>
+	</table>
+
+	{#if canAdd}
+		<button onclick={addTask}>add task</button>
+	{/if}
+	
 {/if}
 
 {#if terminating}
