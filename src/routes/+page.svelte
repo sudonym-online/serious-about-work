@@ -1,6 +1,7 @@
 <script>
 	let fullscreen = $state(false);
 	let terminating = $state(false);
+	let sessLength = $state(0);
 
 	const forceLock = async () => {
 		try {
@@ -37,6 +38,15 @@
 		document.addEventListener('keydown', handleKeyDown);
 		document.addEventListener('keyup', handleKeyUp);
 
+		if (fullscreen) {
+			const start = Date.now();
+			const interval = setInterval(() => {
+				sessLength = Date.now() - start;
+			}, 100);
+
+			return () => clearInterval(interval);
+		}
+
 		return () => {
 			document.removeEventListener('fullscreenchange', changeFullscreen);
 			document.removeEventListener('keydown', handleKeyDown);
@@ -46,14 +56,17 @@
 
 </script>
 
-<h1>SERIOUS ABOUT WORK</h1>
+<!-- <h1>SERIOUS ABOUT WORK</h1> -->
 
 {#if fullscreen}
 	<h2 class="session">SESSION ACTIVE</h2>
+	<p class="length">Session Length: {sessLength/1000} seconds</p>
 {/if}
 
 {#if terminating}
 	<h2 class="terminate">TERMINATING SESSION</h2>
 {/if}
 
-<button onclick={forceLock}>start session</button>
+{#if !fullscreen}
+	<button onclick={forceLock}>start session</button>
+{/if}
