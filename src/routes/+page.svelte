@@ -1,7 +1,11 @@
-<script>
+<script lang="ts">
 	let fullscreen = $state(false);
 	let terminating = $state(false);
 	let sessLength = $state(0);
+	
+	interface NavigatorWithKeyboardLock extends Navigator {
+		keyboard: { lock(keys: string[]): Promise<void> };
+	}
 
 	const forceLock = async () => {
 		try {
@@ -9,7 +13,7 @@
 			fullscreen = true;
 
 			if ('keyboard' in navigator) {
-				await navigator.keyboard.lock(['Escape']);
+				await (navigator as NavigatorWithKeyboardLock).keyboard.lock(['Escape']);
 			}
 		} catch (error) {
 			console.log(error);
@@ -22,12 +26,12 @@
 		if (!fullscreen) terminating = false;	
 	};
 
-	const handleKeyDown = (event) => {
+	const handleKeyDown = (event: KeyboardEvent) => {
 		if (event.key === 'Escape' && fullscreen) {
 			terminating = true;
 		}
 	}
-	const handleKeyUp = (event) => {
+	const handleKeyUp = (event: KeyboardEvent) => {
 		if (event.key === 'Escape' && fullscreen) {
 			terminating = false;
 		}
