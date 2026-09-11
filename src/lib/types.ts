@@ -7,6 +7,12 @@ export interface Task {
 	status: Status;
 }
 
+export interface Log {
+	content: string;
+	date: Date;
+	color: string;
+}
+
 export interface NavigatorWithKeyboardLock extends Navigator {
 	keyboard: { lock(keys: string[]): Promise<void> };
 }

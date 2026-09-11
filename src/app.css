@@ -20,3 +20,62 @@ h1 {
 .session{
   font-family: "Doto", sans-serif;
 }
+
+.logs {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 30vh;
+  overflow-y: auto;
+  border-radius: 4px;
+}
+
+.log {
+  font-size: 0.8em;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+  padding-bottom: 4px;
+}
+
+.log p {
+  margin: 2px 0;
+}
+
+.status {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  text-align: right;
+}
+
+.status h2, .status p {
+  margin: 0;
+}
+
+.tasks {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+table {
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.05);
+  width: fit-content;
+}
+
+.add-btn {
+  align-self: flex-start;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+}

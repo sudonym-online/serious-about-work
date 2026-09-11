@@ -1,9 +1,10 @@
 <script lang="ts">
-	import type { Status, Task, NavigatorWithKeyboardLock } from '$lib/types';
+	import type { Status, Task, NavigatorWithKeyboardLock, Log } from '$lib/types';
 
 	let fullscreen = $state(false);
 	let terminating = $state(false);
 	let sessLength = $state(0);
+	let logs: Log[] = $state([]);
 
 	let draft = $state({
 		name: '',
@@ -19,6 +20,26 @@
 	);
 
 	let tasks: Task[] = $state([]);
+
+	const log = (content : string, date: Date, color: string) => {
+		logs.push({
+			content,
+			date,
+			color
+		});
+	}
+
+	const startSession = () => {
+		forceLock()
+			.then(() => {
+				log("session started", new Date(), "green")
+				log("test log 123 tsaijdfhkjsadhfkh sadkfh", new Date(), "red")
+				log("test log 123sdfasdf tsaijdfhkjsadhfkh sadkfh", new Date(), "red")
+				log("test log 123 tsaijdsdaffhkjsadhfkh sadkfh", new Date(), "red")
+				log("testlg23 tsaijjsadhfkh sadkfh", new Date(), "red")
+
+			})
+	}
 
 	const forceLock = async () => {
 		try {
@@ -95,48 +116,62 @@
 <!-- <h1>SERIOUS ABOUT WORK</h1> -->
 
 {#if fullscreen}
-	<h2 class="session">SESSION ACTIVE</h2>
-	<p class="length">Session Length: {sessLength/1000} seconds</p>
+	<div class="logs">
+		<!-- eslint-disable-next-line svelte/require-each-key -->
+		{#each logs as log}
+			<div class="log" style="color: {log.color};">
+				<p>[{log.date.toLocaleTimeString()}] {log.content}</p>
+			</div>
+		{/each}
 
-	<table>
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Description</th>
-				<th>Due</th>
-				<th>Status</th>
-			</tr>
-		</thead>
-		<tbody>
-			<!-- eslint-disable-next-line svelte/require-each-key -->
-			{#each tasks as task}
+	</div>
+
+	<div class="status">
+		<h2 class="session">SESSION ACTIVE</h2>
+		<p class="length">Session Length: {sessLength/1000} seconds</p>
+	</div>
+
+	<div class="tasks">
+		<table>
+			<thead>
 				<tr>
-					<td>{task.name}</td>
-					<td>{task.description}</td>
-					<td>{task.due.toLocaleDateString()}</td>
-					<td>{task.status}</td>
+					<th>Name</th>
+					<th>Description</th>
+					<th>Due</th>
+					<th>Status</th>
 				</tr>
-			{/each}
-		</tbody>
-		<tfoot>
-			<tr>
-				<th><input type="text" placeholder="Name" bind:value={draft.name} /></th>
-				<th><input type="text" placeholder="Description" bind:value={draft.description} /></th>
-				<th><input type="date" bind:value={draft.due} /></th>
-				<th>
-					<select bind:value={draft.status}>
-						<option value="todo">Todo</option>
-						<option value="in-progress">In Progress</option>
-						<option value="done">Done</option>
-					</select>
-				</th>
-			</tr>
-		</tfoot>
-	</table>
+			</thead>
+			<tbody>
+				<!-- eslint-disable-next-line svelte/require-each-key -->
+				{#each tasks as task}
+					<tr>
+						<td>{task.name}</td>
+						<td>{task.description}</td>
+						<td>{task.due.toLocaleDateString()}</td>
+						<td>{task.status}</td>
+					</tr>
+				{/each}
+			</tbody>
+			<tfoot>
+				<tr>
+					<th><input type="text" placeholder="Name" bind:value={draft.name} /></th>
+					<th><input type="text" placeholder="Description" bind:value={draft.description} /></th>
+					<th><input type="date" bind:value={draft.due} /></th>
+					<th>
+						<select bind:value={draft.status}>
+							<option value="todo">Todo</option>
+							<option value="in-progress">In Progress</option>
+							<option value="done">Done</option>
+						</select>
+					</th>
+				</tr>
+			</tfoot>
+		</table>
 
-	{#if canAdd}
-		<button onclick={addTask}>add task</button>
-	{/if}
+		{#if canAdd}
+			<button class="add-btn" onclick={addTask}>add task</button>
+		{/if}
+	</div>
 	
 {/if}
 
@@ -145,5 +180,5 @@
 {/if}
 
 {#if !fullscreen}
-	<button onclick={forceLock}>start session</button>
+	<button onclick={startSession}>start session</button>
 {/if}
