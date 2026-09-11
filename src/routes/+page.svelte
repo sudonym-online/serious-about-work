@@ -108,6 +108,7 @@
 			</tr>
 		</thead>
 		<tbody>
+			<!-- eslint-disable-next-line svelte/require-each-key -->
 			{#each tasks as task}
 				<tr>
 					<td>{task.name}</td>
