@@ -1,5 +1,5 @@
 :root {
-	color-scheme: light dark;
+	color-scheme: light;
 }
 
 th, td {
@@ -7,7 +7,7 @@ th, td {
 }
 
 body {
-	font-family: system-ui, sans-serif;
+	font-family: "Fragment Mono", monospace;
 }
 
 h1 {
@@ -59,8 +59,8 @@ h1 {
   bottom: 20px;
   left: 20px;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 20px;
 }
 
 table {
@@ -73,6 +73,39 @@ table {
   align-self: flex-start;
   padding: 8px 16px;
   cursor: pointer;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 320px;
+}
+
+.task-items {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.task-sort {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.task-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  overflow-wrap: anywhere;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 th, td {
