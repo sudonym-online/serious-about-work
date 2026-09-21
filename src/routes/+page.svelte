@@ -1,5 +1,9 @@
 <script lang="ts">
 	import type { Status, Task, NavigatorWithKeyboardLock, Log, SortKey } from '$lib/types';
+	import { Timeline } from '$lib/timeline.svelte';
+	import TimelineView from '$lib/TimelineView.svelte';
+
+	const timeline = new Timeline();
 
 	let fullscreen = $state(false);
 	let terminating = $state(false);
@@ -124,13 +128,36 @@
 			return;
 		}
 
+		const now = new Date();
 		tasks.unshift({
 			name: draft.name || 'Untitled Task',
 			description: draft.description,
 			due: draft.due ? new Date(`${draft.due}T00:00`) : null,
-			status: draft.status
+			status: draft.status,
+			start: draft.status === 'in-progress' ? now : null,
+			end: null
 		});
+		const task = tasks[0];
+		timeline.add('single', task, now);
+		if (task.start) timeline.add('extended', task, now);
+		log(`task added: ${task.name}`, now, 'blue');
 		resetDraft();
+	}
+
+	const advanceStatus = (task: Task) => {
+		if (task.status === 'done') return;
+
+		const now = new Date();
+		if (task.status === 'todo') {
+			task.status = 'in-progress';
+			task.start = now;
+			timeline.add('extended', task, now);
+			log(`task started: ${task.name}`, now, 'blue');
+		} else {
+			task.status = 'done';
+			task.end = now;
+			log(`task done: ${task.name}`, now, 'green');
+		}
 	}
 
 	const handleDraftFocusOut = (event: FocusEvent) => {
@@ -151,7 +178,8 @@
 		if (fullscreen) {
 			const start = Date.now();
 			const interval = setInterval(() => {
-				sessLength = Date.now() - start;
+				timeline.now = Date.now();
+				sessLength = timeline.now - start;
 				tenths = Math.floor(sessLength / 100) % 10;
 				jitter = String(Math.floor(Math.random() * 100)).padStart(2, '0');
 			}, 1);
@@ -181,9 +209,12 @@
 
 	</div>
 
-	<div class="status">
-		<h2 class="session">SESSION ACTIVE</h2>
-		<p class="length">Session Length: {Math.floor(sessLength / 1000)}.{tenths}{jitter} seconds</p>
+	<div class="hud">
+		<div class="status">
+			<h2 class="session">SESSION ACTIVE</h2>
+			<p class="length">Session Length: {Math.floor(sessLength / 1000)}.{tenths}{jitter} seconds</p>
+		</div>
+		<TimelineView {timeline} />
 	</div>
 
 	<div class="tasks">
@@ -219,7 +250,9 @@
 							{#if task.due}
 								<span>{task.due.toLocaleDateString()}</span>
 							{/if}
-							<span>{task.status}</span>
+							<button onclick={() => advanceStatus(task)} disabled={task.status === 'done'}>
+								{task.status}
+							</button>
 						</div>
 					</div>
 				{/each}

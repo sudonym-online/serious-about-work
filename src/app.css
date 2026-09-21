@@ -43,15 +43,89 @@ h1 {
   margin: 2px 0;
 }
 
-.status {
+.hud {
   position: fixed;
-  top: 20px;
+  bottom: 20px;
   right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.status {
   text-align: right;
 }
 
 .status h2, .status p {
   margin: 0;
+}
+
+.timeline-wrap {
+  position: relative;
+}
+
+.timeline {
+  position: relative;
+  height: 90px;
+  overflow: hidden;
+}
+
+.tip {
+  position: absolute;
+  bottom: 100%;
+  transform: translateX(-100%);
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 8px;
+  background: rgb(32, 32, 32);
+  color: white;
+  font-size: 0.8em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tick {
+  pointer-events: none;
+  position: absolute;
+  bottom: 24px;
+  width: 2px;
+  height: 24px;
+  background: currentColor;
+}
+
+.tick.major {
+  width: 6px;
+  height: 59px;
+}
+
+.mark {
+  position: absolute;
+}
+
+.mark.single {
+  z-index: 1;
+  top: 0;
+  bottom: 4px;
+  width: 8px;
+}
+
+/* The box is wide so the line is easy to hover. The line is 2 px. */
+.mark.single::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  background: rgb(20, 20, 210);
+}
+
+.mark.extended {
+  top: 1px;
+  bottom: 6px;
+  background: rgb(120, 255, 80);
 }
 
 .tasks {

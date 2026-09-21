@@ -25,3 +25,6 @@ vite.config.ts.timestamp-*
 # Logs
 *.log
 npm-debug.log*
+
+# Agent Files
+AGENTS.md
