@@ -26,6 +26,13 @@ export interface Log {
 	color: string;
 }
 
+export interface Draft {
+	name: string;
+	description: string;
+	due: string;
+	status: Status;
+}
+
 export interface NavigatorWithKeyboardLock extends Navigator {
 	keyboard: { lock(keys: string[]): Promise<void> };
 }
