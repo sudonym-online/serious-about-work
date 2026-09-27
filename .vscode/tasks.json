@@ -1,0 +1,29 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build",
+			"type": "npm",
+			"script": "build",
+			"group": { "kind": "build", "isDefault": true },
+			"problemMatcher": [],
+			"presentation": { "reveal": "silent", "revealProblems": "onProblem", "clear": true }
+		},
+		{
+			"label": "watch",
+			"type": "npm",
+			"script": "dev:ext",
+			"isBackground": true,
+			"group": "build",
+			"problemMatcher": {
+				"owner": "vite",
+				"pattern": { "regexp": "^x^" },
+				"background": {
+					"beginsPattern": "build started",
+					"endsPattern": "extract-inline: moved inline script"
+				}
+			},
+			"presentation": { "reveal": "always", "panel": "dedicated" }
+		}
+	]
+}
