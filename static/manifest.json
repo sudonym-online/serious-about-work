@@ -3,6 +3,14 @@
 	"name": "Serious About Work",
 	"version": "0.0.1",
 	"description": "Blocks distractions and tracks time on each task.",
+	"background": {
+		"service_worker": "service-worker.js",
+		"type": "module"
+	},
+	"permissions": [
+		"storage",
+		"alarms"
+	],
 	"action": {
 		"default_title": "Serious About Work",
 		"default_icon": {

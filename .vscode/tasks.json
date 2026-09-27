@@ -19,8 +19,8 @@
 				"owner": "vite",
 				"pattern": { "regexp": "^x^" },
 				"background": {
-					"beginsPattern": "build started",
-					"endsPattern": "extract-inline: moved inline script"
+					"beginsPattern": "watch: build started",
+					"endsPattern": "watch: build (done|failed)"
 				}
 			},
 			"presentation": { "reveal": "always", "panel": "dedicated" }

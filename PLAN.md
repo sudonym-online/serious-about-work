@@ -169,11 +169,12 @@ The name `boot.js` prevents confusion with the `_app/immutable/entry/start.*.js`
 
 ### Development loop
 
-- [x] Add a `--watch` option to `scripts/extract-inline.js`.
-- [x] Add a `dev:ext` script: `vite build --watch & node scripts/extract-inline.js --watch`.
+- [x] Write `scripts/watch.js`. It runs `npm run build` after each change in `src/` or `static/`.
+- [x] Add a `dev:ext` script: `node scripts/watch.js`.
+- [x] Add VS Code tasks for `build` and `watch` in `.vscode/tasks.json`.
 - [x] After each rebuild, reload the extension page. Click the reload button on the extension card only after a change to `manifest.json` or the service worker.
 
-Each watch rebuild writes the inline script into `index.html` again. The `--watch` option polls `build/index.html` and moves the script after each rebuild.
+Do not use `vite build --watch`. Each SvelteKit build writes `.svelte-kit/generated` again. The Vite watcher sees these files and starts a new build without end.
 
 **Done when:** the current app runs from `chrome-extension://<id>/index.html` with no console errors.
 
@@ -181,14 +182,16 @@ Each watch rebuild writes the inline script into `index.html` again. The `--watc
 
 ### Worker build
 
-SvelteKit does not build a service worker for an extension. A second build step must make it.
+SvelteKit has a service worker build. The worker uses this build, not a second Vite config. The adapter deletes the `build` folder on each build. The SvelteKit build writes the worker again each time, so no extra build step is necessary.
 
-- [ ] Create `src/background/index.ts`.
-- [ ] Create `vite.background.config.js`. Set `build.lib.entry` to `src/background/index.ts`.
-- [ ] Set the output file to `build/background.js`. Set `emptyOutDir: false`.
-- [ ] Add `vite build -c vite.background.config.js` to the `build` script.
-- [ ] Add `"background": { "service_worker": "background.js", "type": "module" }` to the manifest.
-- [ ] Add `"storage"` and `"alarms"` to `permissions` in the manifest.
+- [x] Create `src/background/index.ts`.
+- [x] Add `files: { serviceWorker: 'src/background' }` to the `sveltekit()` options.
+- [x] Add `serviceWorker: { register: false }`. The page must not register the file as a web service worker.
+- [x] Make sure that the build writes `build/service-worker.js`.
+- [x] Make sure that `$lib` imports go into `service-worker.js` as one file.
+- [x] Add `"background": { "service_worker": "service-worker.js", "type": "module" }` to the manifest.
+- [x] Add `"storage"` and `"alarms"` to `permissions` in the manifest.
+- [x] Reload the extension card. Open the service worker console. Make sure that it shows the install message.
 
 ### Shared code
 
