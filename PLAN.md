@@ -197,7 +197,7 @@ SvelteKit has a service worker build. The worker uses this build, not a second V
 
 - [x] Create `src/lib/messages.ts`. Define one type for each message.
 - [x] Create `src/lib/storage.ts`. Put the typed get and set functions for each storage key here.
-- [ ] Use `storage.ts` from the worker and from the app. Do not call `chrome.storage` directly.
+- [x] Use `storage.ts` from the worker and from the app. Do not call `chrome.storage` directly.
 
 ```ts
 type Message =
@@ -218,21 +218,21 @@ type Message =
 
 ### App changes
 
-- [ ] Create `src/lib/session.svelte.ts` with a `$state` object for the session state.
-- [ ] On load, read the state from storage into this object.
-- [ ] Listen to `chrome.storage.onChanged`. Update the object on each change.
-- [ ] Send `start` from the "start session" button.
-- [ ] Calculate the session length as `Date.now() - session.start`.
-- [ ] Remove the 1 ms `setInterval` from `+page.svelte`.
-- [ ] Use `requestAnimationFrame` to update the HUD display.
-- [ ] Move the task list from component state to the `tasks` storage key.
+- [x] Create `src/lib/session.svelte.ts` with a `$state` object for the session state.
+- [x] On load, read the state from storage into this object.
+- [x] Listen to `chrome.storage.onChanged`. Update the object on each change.
+- [x] Send `start` from the "start session" button.
+- [x] Calculate the session length as `Date.now() - session.start`.
+- [x] Remove the 1 ms `setInterval` from `+page.svelte`.
+- [x] Use `requestAnimationFrame` to update the HUD display.
+- [x] Move the task list from component state to the `tasks` storage key.
 
 ### Fix the listener defect
 
 The `$effect` in `+page.svelte` has a defect. When `fullscreen` is true, the cleanup function only clears the interval. The document listeners stay attached.
 
-- [ ] Put the document listeners in their own `$effect`.
-- [ ] Make that `$effect` always return a cleanup that removes the listeners.
+- [x] Put the document listeners in their own `$effect`.
+- [x] Make that `$effect` always return a cleanup that removes the listeners.
 
 **Done when:** a session continues after the app tab closes and opens again. The tasks also stay after a browser restart.
 
@@ -335,8 +335,8 @@ A hard block makes the user disable the extension. A wait and a logged reason ma
 
 Read `timeline.svelte.ts` before this phase. Each change must keep the tick and mark calculations correct.
 
-- [ ] Change `TimelineEvent` to use a `Session` for `extended` events.
-- [ ] Show each `Session` as an `extended` event.
+- [x] Change `TimelineEvent` to use a `Session` for `extended` events.
+- [x] Show each `Session` as an `extended` event.
 - [ ] Show each `BlockAttempt` as a `single` event.
 - [ ] Use a different color for an overridden attempt.
 - [ ] Show the domain and the reason in the hover text of an attempt.

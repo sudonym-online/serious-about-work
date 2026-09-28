@@ -10,9 +10,6 @@ export interface Task {
 	status:             Status;
 	estimate:           number | null; // minutes
 	allowedDomains:     string[];
-	// TODO: remove when the app reads sessions from the worker.
-	start:              Date | null;
-	end:                Date | null;
 }
 
 export interface Session {
@@ -52,12 +49,9 @@ export interface Settings {
 
 export type TimelineKind = 'single' | 'extended';
 
-export interface TimelineEvent {
-	kind: TimelineKind;
-	task: Task;
-	// single: the moment of the event. extended: the block reads task.start and task.end.
-	time: Date;
-}
+export type TimelineEvent =
+	| { kind: 'single'; task: Task; time: Date }
+	| { kind: 'extended'; task: Task; session: Session };
 
 export interface Log {
 	content: string;

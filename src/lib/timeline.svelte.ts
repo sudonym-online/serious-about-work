@@ -1,4 +1,4 @@
-import type { Task, TimelineEvent, TimelineKind } from '$lib/types';
+import type { TimelineEvent, TimelineKind } from '$lib/types';
 
 export const PX_PER_MINUTE = 24;
 export const WIDTH = 600;
@@ -31,8 +31,14 @@ const formatDuration = (ms: number) => {
 };
 
 export class Timeline {
-	events: TimelineEvent[] = $state([]);
 	now = $state(Date.now());
+
+	private source: () => TimelineEvent[];
+	events: TimelineEvent[] = $derived.by(() => this.source());
+
+	constructor(source: () => TimelineEvent[]) {
+		this.source = source;
+	}
 
 	private toRight = (time: number) => ((this.now - time) / MINUTE) * PX_PER_MINUTE;
 
@@ -58,9 +64,8 @@ export class Timeline {
 				return;
 			}
 
-			if (!event.task.start) return;
-			const start = event.task.start.getTime();
-			const end = event.task.end?.getTime() ?? this.now;
+			const start = event.session.start.getTime();
+			const end = event.session.end?.getTime() ?? this.now;
 			const right = this.toRight(end);
 			if (right > WIDTH) return;
 			marks.push({ id, kind: event.kind, right, width: ((end - start) / MINUTE) * PX_PER_MINUTE });
@@ -69,23 +74,20 @@ export class Timeline {
 	});
 
 	describe(id: number): Tip {
-		const { kind, task, time } = this.events[id];
-		if (kind === 'single' || !task.start) {
-			return { title: task.name, lines: ['task added', time.toLocaleTimeString()] };
+		const event = this.events[id];
+		if (event.kind === 'single') {
+			return { title: event.task.name, lines: [event.time.toLocaleTimeString()] };
 		}
 
-		const end = task.end?.getTime() ?? this.now;
+		const { task, session } = event;
+		const end = session.end?.getTime() ?? this.now;
 		return {
 			title: task.name,
 			lines: [
-				task.end ? 'done' : 'in progress',
-				`${task.start.toLocaleTimeString()} - ${task.end?.toLocaleTimeString() ?? 'now'}`,
-				formatDuration(end - task.start.getTime())
+				session.end ? 'ended' : 'in progress',
+				`${session.start.toLocaleTimeString()} - ${session.end?.toLocaleTimeString() ?? 'now'}`,
+				formatDuration(end - session.start.getTime())
 			]
 		};
-	}
-
-	add(kind: TimelineKind, task: Task, time: Date) {
-		this.events.push({ kind, task, time });
 	}
 }
