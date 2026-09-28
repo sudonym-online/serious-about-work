@@ -209,12 +209,12 @@ type Message =
 
 ### Worker logic
 
-- [ ] Handle `start`. Write a new `Session` with `end: null`. Set `activeTaskId`.
-- [ ] Handle `stop`. Set `end` on the active session. Set `activeTaskId` to `null`.
-- [ ] Handle `switchTask`. Stop the active session. Start a new session for the new task.
-- [ ] Handle `getState`. Return the active task and the active session.
-- [ ] Listen to `chrome.action.onClicked`. Open the app tab, or focus it if it is open.
-- [ ] Write each change to storage before the handler returns.
+- [x] Handle `start`. Write a new `Session` with `end: null`. Set `activeTaskId`.
+- [x] Handle `stop`. Set `end` on the active session. Set `activeTaskId` to `null`.
+- [x] Handle `switchTask`. Stop the active session. Start a new session for the new task.
+- [x] Handle `getState`. Return the active task and the active session.
+- [x] Listen to `chrome.action.onClicked`. Open the app tab, or focus it if it is open.
+- [x] Write each change to storage before the handler returns.
 
 ### App changes
 
