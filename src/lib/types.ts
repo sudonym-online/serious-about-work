@@ -5,8 +5,8 @@ export type SortKey = 'added' | 'date' | 'status' | 'name';
 export interface Profile {
 	id:                 string;
 	name:               string;
-	allowed:            string[]; // whitelist
-	blocked:            string[]; // blacklist
+	allowed:            string[];
+	blocked:            string[];
 	deepMode:           boolean;
 }
 
@@ -25,7 +25,7 @@ export interface Session {
 	profileId:          string;
 	start:              Date;
 	end:                Date | null;
-	planned:            number | null; // minutes
+	planned:            number | null;
 }
 
 export interface ActivitySample {

@@ -88,7 +88,6 @@
 		};
 	});
 
-	// The worker keeps the start time, so the length survives a closed tab.
 	$effect(() => {
 		const active = session.active;
 		if (!active) return;
@@ -110,9 +109,7 @@
 
 <!-- <h1>SERIOUS ABOUT WORK</h1> -->
 
-{#if !session.loaded}
-	<!-- storage not read yet -->
-{:else if session.active}
+{#if session.loaded && session.active}
 	<LogPanel {logs} />
 
 	<SessionHud
@@ -125,7 +122,7 @@
 	/>
 
 	<TaskList {logs} {terminating} profileId={session.active.profileId} />
-{:else}
+{:else if session.loaded}
 	<StartMenu {logs} onStart={startSession} />
 {/if}
 

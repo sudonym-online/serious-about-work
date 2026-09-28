@@ -1,5 +1,3 @@
-// Runs `npm run build` after each change in src/ or static/.
-// `vite build --watch` loops with SvelteKit: each build writes .svelte-kit/generated, and the watcher sees it.
 import { spawn } from 'node:child_process';
 import { watch } from 'node:fs';
 
@@ -25,7 +23,6 @@ const build = () => {
 	});
 };
 
-// An editor save can fire several events. Wait for them to stop before the build starts.
 const schedule = () => {
 	clearTimeout(timer);
 	timer = setTimeout(build, 150);

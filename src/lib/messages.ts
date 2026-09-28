@@ -13,6 +13,5 @@ export interface State {
 	session:            Session | null;
 }
 
-// Responses cross the message channel as JSON, so dates come back as numbers.
 export const send = async <R = void>(message: Message): Promise<R> =>
 	unpack(await chrome.runtime.sendMessage(message)) as R;

@@ -4,7 +4,6 @@ type Rule = chrome.declarativeNetRequest.Rule;
 
 const { RuleActionType, ResourceType } = chrome.declarativeNetRequest;
 
-// Higher priority wins. An override beats the blacklist, never alwaysBlocked.
 export const PRIORITY = {
 	catchAll:           1,
 	allowed:            2,
@@ -23,7 +22,6 @@ export const RULE_ID = {
 
 const LOCALHOST = ['localhost', '127.0.0.1'];
 
-// Only http(s) matches, so chrome-extension:// pages are never redirected.
 const WEB_URL = '^https?://.*';
 
 const isOverride = (id: number) => id >= RULE_ID.override && id < RULE_ID.alwaysBlocked;
@@ -69,7 +67,6 @@ const build = (profile: Profile, alwaysBlocked: string[], settings: Settings): R
 	return rules;
 };
 
-// Replaces every rule except live overrides. Their alarms remove them.
 const apply = async (rules: Rule[]) => {
 	const current = await chrome.declarativeNetRequest.getDynamicRules();
 	await chrome.declarativeNetRequest.updateDynamicRules({

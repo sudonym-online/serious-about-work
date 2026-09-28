@@ -1,6 +1,3 @@
-// The block page. Plain JS: Vite copies static/ as-is and does not compile it.
-
-// The redirect puts the raw URL after "?url=". URLSearchParams would split it at the first "&".
 const blockedUrl = location.search.slice('?url='.length);
 
 const getDomain = (url) => {

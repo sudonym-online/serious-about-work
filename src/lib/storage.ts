@@ -42,7 +42,6 @@ const DEFAULTS: Schema = {
 	settings:           DEFAULT_SETTINGS
 };
 
-// chrome.storage keeps JSON, so dates go in as numbers. These fields come back as Date.
 const DATE_FIELDS = new Set(['due', 'completed', 'start', 'end', 'time']);
 
 export const pack = (value: unknown): unknown => {
@@ -83,7 +82,6 @@ export const Storage = {
 		return chrome.storage.local.set({ [key]: pack(value) });
 	},
 
-	// Returns a function that removes the listener.
 	onChange(fn: (changes: Partial<Schema>) => void): () => void {
 		const listener = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
 			if (area !== 'local') return;

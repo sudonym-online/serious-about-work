@@ -1,10 +1,8 @@
-// MV3 blocks inline scripts in extension pages. This moves the SvelteKit boot script into build/boot.js.
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const htmlPath = 'build/index.html';
 const html = readFileSync(htmlPath, 'utf8');
 
-// A bare <script> tag has inline code. Tags with src= do not match.
 const inline = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 
 if (inline.length === 0) {
@@ -21,7 +19,6 @@ const [tag, code] = inline[0];
 
 writeFileSync('build/boot.js', code.trim() + '\n');
 
-// Keep it a classic script. The boot code reads document.currentScript, which is null in modules.
 writeFileSync(htmlPath, html.replace(tag, '<script src="/boot.js"></script>'));
 
 console.log('extract-inline: moved inline script to build/boot.js');

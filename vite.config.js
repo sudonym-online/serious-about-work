@@ -10,7 +10,6 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 			router: { type: 'hash' },
-			// Chrome rejects extension files that start with "_", so rename the default "_app".
 			appDir: 'app',
 			files: { serviceWorker: 'src/background' },
 			serviceWorker: { register: false },

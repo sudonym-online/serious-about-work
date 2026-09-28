@@ -7,7 +7,6 @@
 
 	let text = $state('');
 
-	// "https://www.YouTube.com/watch" -> "youtube.com". A rule on a domain also covers its subdomains.
 	const normalize = (input: string) =>
 		input
 			.trim()

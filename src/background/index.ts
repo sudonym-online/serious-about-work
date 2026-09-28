@@ -1,12 +1,9 @@
-// The extension service worker. Chrome starts it on events and stops it when idle,
-// so all state lives in chrome.storage and every listener is registered at the top level.
 import type { Message, State } from '$lib/messages';
 import { Storage, pack } from '$lib/storage';
 import { Rules } from './rules';
 
 const APP_URL = chrome.runtime.getURL('index.html');
 
-// Events can fire together. One chain keeps each read-modify-write on storage whole.
 let chain: Promise<unknown> = Promise.resolve();
 const queue = <T>(fn: () => Promise<T>): Promise<T> => {
 	const next = chain.then(fn, fn);
@@ -23,7 +20,6 @@ const applyRules = async () => {
 	await Rules.apply(Rules.build(profile, alwaysBlocked, settings));
 };
 
-// A list edit during a session takes effect at once.
 Storage.onChange((changes) => {
 	if (!changes.profiles && !changes.alwaysBlocked && !changes.settings) return;
 	queue(applyRules);
@@ -104,7 +100,7 @@ const handle = async (message: Message): Promise<unknown> => {
 
 chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
 	queue(() => handle(message)).then((result) => sendResponse(pack(result)));
-	return true; // keeps the channel open for the async response
+	return true;
 });
 
 chrome.runtime.onInstalled.addListener(() => {

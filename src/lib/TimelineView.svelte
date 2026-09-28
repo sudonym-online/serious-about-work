@@ -6,7 +6,6 @@
 	let hoveredId: number | null = $state(null);
 	let tipX = $state(0);
 
-	// The ticker moves, so a mark can leave the window while the pointer is on it.
 	let tip = $derived(
 		hoveredId !== null && timeline.marks.some((mark) => mark.id === hoveredId)
 			? timeline.describe(hoveredId)

@@ -1,7 +1,6 @@
 import type { Profile, Session, Task } from '$lib/types';
 import { Storage } from '$lib/storage';
 
-// The worker owns the session. The app only mirrors storage and sends messages.
 export class SessionState {
 	profiles:           Profile[] =         $state([]);
 	tasks:              Task[] =            $state([]);
@@ -23,7 +22,6 @@ export class SessionState {
 		this.loaded = true;
 	}
 
-	// Returns a function that removes the listener.
 	listen(): () => void {
 		return Storage.onChange((changes) => {
 			if (changes.profiles) this.profiles = changes.profiles;

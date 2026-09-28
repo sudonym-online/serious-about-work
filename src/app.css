@@ -111,7 +111,6 @@ h1 {
   width: 8px;
 }
 
-/* The box is wide so the line is easy to hover. The line is 2 px. */
 .mark.single::after {
   content: '';
   position: absolute;
