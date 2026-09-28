@@ -15,35 +15,31 @@ const queue = <T>(fn: () => Promise<T>): Promise<T> => {
 
 // ------------------- SESSION -------------------
 
-const startSession = async (taskId: string) => {
+const startSession = async (profileId: string, planned: number | null) => {
+	if (await Storage.get('activeProfileId')) return;
+
 	const sessions = await Storage.get('sessions');
-	sessions.push({ taskId, start: new Date(), end: null });
+	sessions.push({ id: crypto.randomUUID(), profileId, start: new Date(), end: null, planned });
 	await Storage.set('sessions', sessions);
-	await Storage.set('activeTaskId', taskId);
-	console.log(`[worker] session started: ${taskId}`);
+	await Storage.set('activeProfileId', profileId);
+	console.log(`[worker] session started: ${profileId}`);
 };
 
 const stopSession = async () => {
-	const activeTaskId = await Storage.get('activeTaskId');
-	if (!activeTaskId) return;
-
 	const sessions = await Storage.get('sessions');
 	const session = sessions.findLast((s) => s.end === null);
-	if (session) session.end = new Date();
-	await Storage.set('sessions', sessions);
-	await Storage.set('activeTaskId', null);
-	console.log(`[worker] session stopped: ${activeTaskId}`);
-};
+	if (!session) return;
 
-const switchTask = async (taskId: string) => {
-	await stopSession();
-	await startSession(taskId);
+	session.end = new Date();
+	await Storage.set('sessions', sessions);
+	await Storage.set('activeProfileId', null);
+	console.log(`[worker] session stopped: ${session.profileId}`);
 };
 
 const getState = async (): Promise<State> => {
-	const { tasks, activeTaskId, sessions } = await Storage.getAll();
+	const { profiles, activeProfileId, sessions } = await Storage.getAll();
 	return {
-		task:       tasks.find((t) => t.id === activeTaskId) ?? null,
+		profile:    profiles.find((p) => p.id === activeProfileId) ?? null,
 		session:    sessions.findLast((s) => s.end === null) ?? null
 	};
 };
@@ -52,9 +48,8 @@ const getState = async (): Promise<State> => {
 
 const handle = async (message: Message): Promise<unknown> => {
 	switch (message.type) {
-		case 'start':       return startSession(message.taskId);
+		case 'start':       return startSession(message.profileId, message.planned);
 		case 'stop':        return stopSession();
-		case 'switchTask':  return switchTask(message.taskId);
 		case 'getState':    return getState();
 	}
 };

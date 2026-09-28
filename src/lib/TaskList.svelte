@@ -8,13 +8,13 @@
 	let {
 		logs,
 		terminating,
-		onStart
-	}: { logs: Log[]; terminating: boolean; onStart: (task: Task) => void } = $props();
+		profileId
+	}: { logs: Log[]; terminating: boolean; profileId: string } = $props();
 
 	const sortKeys: SortKey[] = ['added', 'date', 'status', 'name'];
 	const statusOrder: Record<Status, number> = { todo: 0, 'in-progress': 1, done: 2 };
 
-	let tasks = $derived(session.tasks);
+	let tasks = $derived(session.tasks.filter((t) => t.profileId === profileId));
 	let sortKey: SortKey = $state('added');
 	let sortReversed = $state(false);
 	let addingTask = $state(false);
@@ -82,12 +82,12 @@
 		const now = new Date();
 		session.tasks.unshift({
 			id: crypto.randomUUID(),
+			profileId,
 			name: draft.name || 'Untitled Task',
 			description: draft.description,
 			due: draft.due ? new Date(`${draft.due}T00:00`) : null,
 			status: draft.status,
-			estimate: null,
-			allowedDomains: []
+			completed: draft.status === 'done' ? now : null
 		});
 		session.saveTasks();
 		log(`task added: ${session.tasks[0].name}`, now, 'blue');
@@ -103,8 +103,14 @@
 			log(`task in progress: ${task.name}`, now, 'blue');
 		} else {
 			task.status = 'done';
+			task.completed = now;
 			log(`task done: ${task.name}`, now, 'green');
 		}
+		session.saveTasks();
+	};
+
+	const removeTask = (task: Task) => {
+		session.tasks = session.tasks.filter((t) => t.id !== task.id);
 		session.saveTasks();
 	};
 </script>
@@ -119,7 +125,7 @@
 			{/if}
 
 			{#each sortedTasks as task (task.id)}
-				<TaskRow {task} active={task.id === session.activeTaskId} onAdvance={advanceStatus} {onStart} />
+				<TaskRow {task} onAdvance={advanceStatus} onRemove={removeTask} />
 			{/each}
 		</div>
 	</div>

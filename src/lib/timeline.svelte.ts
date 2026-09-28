@@ -79,10 +79,10 @@ export class Timeline {
 			return { title: event.task.name, lines: [event.time.toLocaleTimeString()] };
 		}
 
-		const { task, session } = event;
+		const { profile, session } = event;
 		const end = session.end?.getTime() ?? this.now;
 		return {
-			title: task.name,
+			title: profile.name,
 			lines: [
 				session.end ? 'ended' : 'in progress',
 				`${session.start.toLocaleTimeString()} - ${session.end?.toLocaleTimeString() ?? 'now'}`,

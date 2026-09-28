@@ -239,10 +239,10 @@ type Message =
 - [x] Handle `getState`. Return the active profile and the active session.
 - [x] Listen to `chrome.action.onClicked`. Open the app tab, or focus it if it is open.
 - [x] Write each change to storage before the handler returns.
-- [ ] Add the `profiles` storage key.
-- [ ] Give each `Session` an `id`, a `profileId`, and a `planned` length.
-- [ ] Replace `activeTaskId` with `activeProfileId`.
-- [ ] Remove the `switchTask` message.
+- [x] Add the `profiles` storage key.
+- [x] Give each `Session` an `id`, a `profileId`, and a `planned` length.
+- [x] Replace `activeTaskId` with `activeProfileId`.
+- [x] Remove the `switchTask` message.
 
 ### App changes
 
@@ -258,23 +258,23 @@ type Message =
 
 The app shows the start menu when no session is active.
 
-- [ ] Create `src/lib/StartMenu.svelte`.
-- [ ] Show a list of the profiles. Add a "new profile" button.
-- [ ] Create `src/lib/ProfileEditor.svelte`. Edit the name, the whitelist, and the blacklist.
-- [ ] Create `src/lib/DomainInput.svelte` for domain lists.
-- [ ] Show the tasks of the selected profile. Let the user add tasks before the session.
-- [ ] Add an optional input for the planned length in minutes.
-- [ ] Add a "start session" button. Send `start` with the profile and the planned length.
-- [ ] Remove the `start` button from `TaskRow.svelte`.
+- [x] Create `src/lib/StartMenu.svelte`.
+- [x] Show a list of the profiles. Add a "new profile" button.
+- [x] Create `src/lib/ProfileEditor.svelte`. Edit the name, the whitelist, and the blacklist.
+- [x] Create `src/lib/DomainInput.svelte` for domain lists.
+- [x] Show the tasks of the selected profile. Let the user add tasks before the session.
+- [x] Add an optional input for the planned length in minutes.
+- [x] Add a "start session" button. Send `start` with the profile and the planned length.
+- [x] Remove the `start` button from `TaskRow.svelte`.
 
 ### Session view
 
 The app shows the session view when a session is active.
 
-- [ ] Show the profile name in the session HUD.
-- [ ] Show only the tasks of the active profile.
-- [ ] Let the user add tasks during the session.
-- [ ] Set `completed` on a task when its status changes to `done`.
+- [x] Show the profile name in the session HUD.
+- [x] Show only the tasks of the active profile.
+- [x] Let the user add tasks during the session.
+- [x] Set `completed` on a task when its status changes to `done`.
 
 ### Fix the listener defect
 

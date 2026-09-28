@@ -1,16 +1,17 @@
 <script lang="ts">
-	import type { NavigatorWithKeyboardLock, Log, Task, TimelineEvent } from '$lib/types';
+	import type { NavigatorWithKeyboardLock, Log, Profile, TimelineEvent } from '$lib/types';
 	import { Timeline } from '$lib/timeline.svelte';
 	import { session } from '$lib/session.svelte';
 	import { send } from '$lib/messages';
 	import LogPanel from '$lib/LogPanel.svelte';
 	import SessionHud from '$lib/SessionHud.svelte';
+	import StartMenu from '$lib/StartMenu.svelte';
 	import TaskList from '$lib/TaskList.svelte';
 
 	const timeline = new Timeline(() =>
 		session.sessions.flatMap((s): TimelineEvent[] => {
-			const task = session.tasks.find((t) => t.id === s.taskId);
-			return task ? [{ kind: 'extended', task, session: s }] : [];
+			const profile = session.profiles.find((p) => p.id === s.profileId);
+			return profile ? [{ kind: 'extended', profile, session: s }] : [];
 		})
 	);
 
@@ -26,10 +27,10 @@
 		logs.push({ content, date, color });
 	};
 
-	const startSession = async (task: Task) => {
+	const startSession = async (profile: Profile, planned: number | null) => {
 		await forceLock();
-		await send({ type: session.active ? 'switchTask' : 'start', taskId: task.id });
-		log(`session started: ${task.name}`, new Date(), 'green');
+		await send({ type: 'start', profileId: profile.id, planned });
+		log(`session started: ${profile.name}`, new Date(), 'green');
 	};
 
 	const stopSession = async () => {
@@ -109,21 +110,23 @@
 
 <!-- <h1>SERIOUS ABOUT WORK</h1> -->
 
-{#if session.active}
+{#if !session.loaded}
+	<!-- storage not read yet -->
+{:else if session.active}
 	<LogPanel {logs} />
 
 	<SessionHud
 		{timeline}
-		taskName={session.task?.name ?? ''}
+		profileName={session.profile?.name ?? ''}
 		{sessLength}
 		{tenths}
 		{jitter}
 		onStop={stopSession}
 	/>
-{/if}
 
-{#if session.loaded}
-	<TaskList {logs} {terminating} onStart={startSession} />
+	<TaskList {logs} {terminating} profileId={session.active.profileId} />
+{:else}
+	<StartMenu {logs} onStart={startSession} />
 {/if}
 
 {#if terminating}

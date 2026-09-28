@@ -3,18 +3,16 @@
 
 	let {
 		task,
-		active,
 		onAdvance,
-		onStart
+		onRemove
 	}: {
 		task: Task;
-		active: boolean;
 		onAdvance: (task: Task) => void;
-		onStart: (task: Task) => void;
+		onRemove: (task: Task) => void;
 	} = $props();
 </script>
 
-<div class="task-row" class:active>
+<div class="task-row">
 	<span>{task.name}</span>
 	{#if task.description}
 		<span>{task.description}</span>
@@ -26,8 +24,6 @@
 		<button onclick={() => onAdvance(task)} disabled={task.status === 'done'}>
 			{task.status}
 		</button>
-		<button onclick={() => onStart(task)} disabled={active || task.status === 'done'}>
-			{active ? 'active' : 'start'}
-		</button>
+		<button onclick={() => onRemove(task)} aria-label="remove {task.name}">×</button>
 	</div>
 </div>

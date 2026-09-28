@@ -2,37 +2,47 @@ export type Status = 'todo' | 'in-progress' | 'done';
 
 export type SortKey = 'added' | 'date' | 'status' | 'name';
 
+export interface Profile {
+	id:                 string;
+	name:               string;
+	allowed:            string[]; // whitelist
+	blocked:            string[]; // blacklist
+	deepMode:           boolean;
+}
+
 export interface Task {
 	id:                 string;
+	profileId:          string;
 	name:               string;
 	description:        string;
 	due:                Date | null;
 	status:             Status;
-	estimate:           number | null; // minutes
-	allowedDomains:     string[];
+	completed:          Date | null;
 }
 
 export interface Session {
-	taskId:             string;
+	id:                 string;
+	profileId:          string;
 	start:              Date;
 	end:                Date | null;
+	planned:            number | null; // minutes
 }
 
 export interface ActivitySample {
-	taskId:             string;
+	sessionId:          string;
 	domain:             string;
 	start:              Date;
 	end:                Date;
 }
 
 export interface OpenSample {
-	taskId:             string;
+	sessionId:          string;
 	domain:             string;
 	start:              Date;
 }
 
 export interface BlockAttempt {
-	taskId:             string;
+	sessionId:          string;
 	domain:             string;
 	time:               Date;
 	overridden:         boolean;
@@ -51,7 +61,7 @@ export type TimelineKind = 'single' | 'extended';
 
 export type TimelineEvent =
 	| { kind: 'single'; task: Task; time: Date }
-	| { kind: 'extended'; task: Task; session: Session };
+	| { kind: 'extended'; profile: Profile; session: Session };
 
 export interface Log {
 	content: string;

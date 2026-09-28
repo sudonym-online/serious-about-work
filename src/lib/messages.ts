@@ -1,14 +1,13 @@
-import type { Session, Task } from '$lib/types';
+import type { Profile, Session } from '$lib/types';
 import { unpack } from '$lib/storage';
 
 export type Message =
-	| { type: 'start'; taskId: string }
+	| { type: 'start'; profileId: string; planned: number | null }
 	| { type: 'stop' }
-	| { type: 'switchTask'; taskId: string }
 	| { type: 'getState' };
 
 export interface State {
-	task:               Task | null;
+	profile:            Profile | null;
 	session:            Session | null;
 }
 

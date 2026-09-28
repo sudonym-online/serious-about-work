@@ -4,14 +4,14 @@
 
 	let {
 		timeline,
-		taskName,
+		profileName,
 		sessLength,
 		tenths,
 		jitter,
 		onStop
 	}: {
 		timeline: Timeline;
-		taskName: string;
+		profileName: string;
 		sessLength: number;
 		tenths: number;
 		jitter: string;
@@ -22,7 +22,7 @@
 <div class="hud">
 	<div class="status">
 		<h2 class="session">SESSION ACTIVE</h2>
-		<p class="task">{taskName}</p>
+		<p class="profile">{profileName}</p>
 		<p class="length">Session Length: {Math.floor(sessLength / 1000)}.{tenths}{jitter} seconds</p>
 		<button onclick={onStop}>stop session</button>
 	</div>

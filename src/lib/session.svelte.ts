@@ -1,31 +1,40 @@
-import type { Session, Task } from '$lib/types';
+import type { Profile, Session, Task } from '$lib/types';
 import { Storage } from '$lib/storage';
 
 // The worker owns the session. The app only mirrors storage and sends messages.
 export class SessionState {
-	tasks:          Task[] =            $state([]);
-	sessions:       Session[] =         $state([]);
-	activeTaskId:   string | null =     $state(null);
-	loaded =                            $state(false);
+	profiles:           Profile[] =         $state([]);
+	tasks:              Task[] =            $state([]);
+	sessions:           Session[] =         $state([]);
+	activeProfileId:    string | null =     $state(null);
+	loaded =                                $state(false);
 
 	active: Session | null = $derived(this.sessions.findLast((s) => s.end === null) ?? null);
-	task: Task | null = $derived(this.tasks.find((t) => t.id === this.activeTaskId) ?? null);
+	profile: Profile | null = $derived(
+		this.profiles.find((p) => p.id === this.activeProfileId) ?? null
+	);
 
 	async load() {
 		const all = await Storage.getAll();
+		this.profiles = all.profiles;
 		this.tasks = all.tasks;
 		this.sessions = all.sessions;
-		this.activeTaskId = all.activeTaskId;
+		this.activeProfileId = all.activeProfileId;
 		this.loaded = true;
 	}
 
 	// Returns a function that removes the listener.
 	listen(): () => void {
 		return Storage.onChange((changes) => {
+			if (changes.profiles) this.profiles = changes.profiles;
 			if (changes.tasks) this.tasks = changes.tasks;
 			if (changes.sessions) this.sessions = changes.sessions;
-			if (changes.activeTaskId !== undefined) this.activeTaskId = changes.activeTaskId;
+			if (changes.activeProfileId !== undefined) this.activeProfileId = changes.activeProfileId;
 		});
+	}
+
+	saveProfiles() {
+		return Storage.set('profiles', $state.snapshot(this.profiles) as Profile[]);
 	}
 
 	saveTasks() {

@@ -1,8 +1,17 @@
-import type { ActivitySample, BlockAttempt, OpenSample, Session, Settings, Task } from '$lib/types';
+import type {
+	ActivitySample,
+	BlockAttempt,
+	OpenSample,
+	Profile,
+	Session,
+	Settings,
+	Task
+} from '$lib/types';
 
 export interface Schema {
+	profiles:           Profile[];
 	tasks:              Task[];
-	activeTaskId:       string | null;
+	activeProfileId:    string | null;
 	sessions:           Session[];
 	samples:            ActivitySample[];
 	openSample:         OpenSample | null;
@@ -22,8 +31,9 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 const DEFAULTS: Schema = {
+	profiles:           [],
 	tasks:              [],
-	activeTaskId:       null,
+	activeProfileId:    null,
 	sessions:           [],
 	samples:            [],
 	openSample:         null,
@@ -33,7 +43,7 @@ const DEFAULTS: Schema = {
 };
 
 // chrome.storage keeps JSON, so dates go in as numbers. These fields come back as Date.
-const DATE_FIELDS = new Set(['due', 'start', 'end', 'time']);
+const DATE_FIELDS = new Set(['due', 'completed', 'start', 'end', 'time']);
 
 export const pack = (value: unknown): unknown => {
 	if (value instanceof Date) return value.getTime();
