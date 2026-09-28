@@ -63,24 +63,22 @@ const getState = async (): Promise<State> => {
 	};
 };
 
-// ------------------- MESSAGES -------------------
+// ------------------- BLOCKING -------------------
 
-const handle = async (message: Message): Promise<unknown> => {
-	switch (message.type) {
-		case 'start':       return startSession(message.profileId, message.planned);
-		case 'stop':        return stopSession();
-		case 'getState':    return getState();
-	}
+const recordAttempt = async (domain: string) => {
+	const sessions = await Storage.get('sessions');
+	const session = sessions.findLast((s) => s.end === null);
+	if (!session) return;
+
+	const attempts = await Storage.get('blockAttempts');
+	attempts.push({ sessionId: session.id, domain, time: new Date(), overridden: false, reason: null });
+	await Storage.set('blockAttempts', attempts);
+	console.log(`[worker] blocked: ${domain}`);
 };
 
-chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
-	queue(() => handle(message)).then((result) => sendResponse(pack(result)));
-	return true; // keeps the channel open for the async response
-});
+// ------------------- APP TAB -------------------
 
-// ------------------- TOOLBAR -------------------
-
-chrome.action.onClicked.addListener(async () => {
+const openApp = async () => {
 	const [tab] = await chrome.tabs.query({ url: APP_URL });
 	if (!tab?.id) {
 		await chrome.tabs.create({ url: APP_URL });
@@ -88,6 +86,25 @@ chrome.action.onClicked.addListener(async () => {
 	}
 	await chrome.tabs.update(tab.id, { active: true });
 	await chrome.windows.update(tab.windowId, { focused: true });
+};
+
+chrome.action.onClicked.addListener(openApp);
+
+// ------------------- MESSAGES -------------------
+
+const handle = async (message: Message): Promise<unknown> => {
+	switch (message.type) {
+		case 'start':       return startSession(message.profileId, message.planned);
+		case 'stop':        return stopSession();
+		case 'getState':    return getState();
+		case 'blocked':     return recordAttempt(message.domain);
+		case 'openApp':     return openApp();
+	}
+};
+
+chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
+	queue(() => handle(message)).then((result) => sendResponse(pack(result)));
+	return true; // keeps the channel open for the async response
 });
 
 chrome.runtime.onInstalled.addListener(() => {

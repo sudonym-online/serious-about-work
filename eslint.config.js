@@ -18,6 +18,11 @@ export default defineConfig([
 	},
 
 	{
+		files: ['static/**/*.js'],
+		languageOptions: { globals: globals.webextensions }
+	},
+
+	{
 		files: ['**/*.svelte', '**/*.svelte.js', '**/*.svelte.ts'],
 		languageOptions: { parserOptions: { parser: ts.parser } }
 	},

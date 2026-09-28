@@ -323,13 +323,13 @@ Get the extension URL at runtime with `chrome.runtime.getURL('blocked.html')`. S
 
 ### Block page
 
-- [ ] Create `static/blocked.html` and `static/blocked.js`. Keep this page separate from the Svelte app.
-- [ ] Use plain JS in `blocked.js`. Vite copies `static` files and does not compile them.
-- [ ] Read the `url` parameter. Show the blocked domain.
-- [ ] Read `activeProfileId` from storage. Show the profile name.
-- [ ] Add a "back to work" button that opens the app tab.
-- [ ] Send a `blocked` message to the worker on page load.
-- [ ] In the worker, record a `BlockAttempt` for each `blocked` message.
+- [x] Create `static/blocked.html` and `static/blocked.js`. Keep this page separate from the Svelte app.
+- [x] Use plain JS in `blocked.js`. Vite copies `static` files and does not compile them.
+- [x] Read the `url` parameter. Show the blocked domain.
+- [x] Read `activeProfileId` from storage. Show the profile name.
+- [x] Add a "back to work" button that opens the app tab.
+- [x] Send a `blocked` message to the worker on page load.
+- [x] In the worker, record a `BlockAttempt` for each `blocked` message.
 
 **Done when:** a blacklist profile blocks only its blacklist. A whitelist profile blocks all sites that are not on its whitelist. The block page shows the profile name.
 

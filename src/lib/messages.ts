@@ -4,7 +4,9 @@ import { unpack } from '$lib/storage';
 export type Message =
 	| { type: 'start'; profileId: string; planned: number | null }
 	| { type: 'stop' }
-	| { type: 'getState' };
+	| { type: 'getState' }
+	| { type: 'blocked'; domain: string }
+	| { type: 'openApp' };
 
 export interface State {
 	profile:            Profile | null;
