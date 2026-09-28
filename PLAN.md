@@ -1,15 +1,19 @@
 # Extension Plan
 
-This plan changes the app from a fullscreen web app into a browser extension. The extension blocks distracting sites and tracks the time spent on each task.
+This plan changes the app from a fullscreen web app into a browser extension. The extension blocks distracting sites and records the time of each session.
 
 Mark each item when it is complete. Each phase ends with a "Done when" check. Do not start a phase before the check of the previous phase passes.
 
 ## Goals
 
-- Block sites that do not help the active task.
-- Allow the sites that the active task needs.
-- Record the time on each task and each site.
-- Show sessions, site visits, and block attempts on the timeline.
+- Let the user make profiles, such as "school" and "work".
+- Give each profile a whitelist and a blacklist of sites.
+- Let the user set up the tasks of a profile before a session starts.
+- Start a session for one profile from a start menu.
+- Let the user add tasks during a session.
+- Record the time of each session and the time on each site.
+- Show sessions, block attempts, and finished tasks on the timeline.
+- Keep a history of all sessions.
 - Keep the fullscreen lock as an option.
 
 ## Terms
@@ -30,8 +34,8 @@ The Svelte app runs as a page inside the extension. There is no separate server.
  ┌──────────────── extension (MV3) ─────────────────┐
  │                                                  │
  │  app tab  <─────── messages ───────>  service    │
- │  (tasks, timeline,                    worker     │
- │   session HUD)                        (state,    │
+ │  (start menu,                         worker     │
+ │   HUD, timeline)                      (state,    │
  │        │                               tracking, │
  │        └──────── chrome.storage ─────── rules)   │
  │                                          │       │
@@ -46,55 +50,77 @@ Chrome can stop the service worker at any time. Thus the worker must write all s
 
 ## Data Model
 
-The current `Task` type has one `start` and one `end`. This model cannot record a pause and a resume. Replace it with these types in `src/lib/types.ts`:
+A session belongs to one profile. The extension records time for each session, not for each task. The tasks of a profile are a checklist.
+
+Put these types in `src/lib/types.ts`:
 
 ```ts
+interface Profile {
+	id:             string;
+	name:           string;
+	allowed:        string[];      // whitelist
+	blocked:        string[];      // blacklist
+	deepMode:       boolean;
+}
+
 interface Task {
-	id: string;
-	name: string;
-	description: string;
-	due: Date | null;
-	status: Status;
-	estimate: number | null; // minutes
-	allowedDomains: string[];
+	id:             string;
+	profileId:      string;
+	name:           string;
+	description:    string;
+	due:            Date | null;
+	status:         Status;
+	completed:      Date | null;
 }
 
 interface Session {
-	taskId: string;
-	start: Date;
-	end: Date | null;
+	id:             string;
+	profileId:      string;
+	start:          Date;
+	end:            Date | null;
+	planned:        number | null; // minutes
 }
 
 interface ActivitySample {
-	taskId: string;
-	domain: string;
-	start: Date;
-	end: Date;
+	sessionId:      string;
+	domain:         string;
+	start:          Date;
+	end:            Date;
 }
 
 interface BlockAttempt {
-	taskId: string;
-	domain: string;
-	time: Date;
-	overridden: boolean;
-	reason: string | null;
+	sessionId:      string;
+	domain:         string;
+	time:           Date;
+	overridden:     boolean;
+	reason:         string | null;
 }
 ```
+
+### Whitelist and blacklist
+
+Each profile has two lists. The whitelist decides the mode.
+
+- If the whitelist is empty, the profile is in blacklist mode. The extension blocks only the blacklist domains.
+- If the whitelist has domains, the profile is in whitelist mode. The extension blocks all domains that are not on the whitelist.
+- The blacklist always wins over the whitelist. For example, allow `google.com` and block `mail.google.com`.
+- The `alwaysBlocked` list wins over all profile lists and over each override.
 
 ### Storage keys
 
 | Key | Type | Contents |
 | --- | --- | --- |
-| `tasks` | `Task[]` | All tasks. |
-| `activeTaskId` | `string \| null` | The task of the active session. |
+| `profiles` | `Profile[]` | All profiles. |
+| `tasks` | `Task[]` | All tasks of all profiles. |
+| `activeProfileId` | `string \| null` | The profile of the active session. |
 | `sessions` | `Session[]` | All sessions. An active session has `end: null`. |
 | `samples` | `ActivitySample[]` | Time on each domain. |
-| `openSample` | `{ taskId, domain, start } \| null` | The sample that is not closed yet. |
+| `openSample` | `{ sessionId, domain, start } \| null` | The sample that is not closed yet. |
 | `blockAttempts` | `BlockAttempt[]` | All redirects to the block page. |
-| `alwaysBlocked` | `string[]` | Domains that no task can allow. |
-| `settings` | `object` | Idle threshold, override wait, deep mode. |
+| `alwaysBlocked` | `string[]` | Domains that no profile can allow. |
+| `settings` | `object` | Idle threshold, override wait, override time, break time, allow localhost. |
 
-Store dates as numbers in `chrome.storage`. Convert them to `Date` objects in the app.
+Store dates as numbers in `chrome.storage`. `storage.ts` converts them to `Date` objects.
 
 ## Phase 1: Load the app as an extension page
 
@@ -201,31 +227,54 @@ SvelteKit has a service worker build. The worker uses this build, not a second V
 
 ```ts
 type Message =
-	| { type: 'start'; taskId: string }
+	| { type: 'start'; profileId: string; planned: number | null }
 	| { type: 'stop' }
-	| { type: 'switchTask'; taskId: string }
 	| { type: 'getState' };
 ```
 
 ### Worker logic
 
-- [x] Handle `start`. Write a new `Session` with `end: null`. Set `activeTaskId`.
-- [x] Handle `stop`. Set `end` on the active session. Set `activeTaskId` to `null`.
-- [x] Handle `switchTask`. Stop the active session. Start a new session for the new task.
-- [x] Handle `getState`. Return the active task and the active session.
+- [x] Handle `start`. Write a new `Session` with `end: null`.
+- [x] Handle `stop`. Set `end` on the active session.
+- [x] Handle `getState`. Return the active profile and the active session.
 - [x] Listen to `chrome.action.onClicked`. Open the app tab, or focus it if it is open.
 - [x] Write each change to storage before the handler returns.
+- [ ] Add the `profiles` storage key.
+- [ ] Give each `Session` an `id`, a `profileId`, and a `planned` length.
+- [ ] Replace `activeTaskId` with `activeProfileId`.
+- [ ] Remove the `switchTask` message.
 
 ### App changes
 
 - [x] Create `src/lib/session.svelte.ts` with a `$state` object for the session state.
 - [x] On load, read the state from storage into this object.
 - [x] Listen to `chrome.storage.onChanged`. Update the object on each change.
-- [x] Send `start` from the "start session" button.
 - [x] Calculate the session length as `Date.now() - session.start`.
 - [x] Remove the 1 ms `setInterval` from `+page.svelte`.
 - [x] Use `requestAnimationFrame` to update the HUD display.
 - [x] Move the task list from component state to the `tasks` storage key.
+
+### Start menu
+
+The app shows the start menu when no session is active.
+
+- [ ] Create `src/lib/StartMenu.svelte`.
+- [ ] Show a list of the profiles. Add a "new profile" button.
+- [ ] Create `src/lib/ProfileEditor.svelte`. Edit the name, the whitelist, and the blacklist.
+- [ ] Create `src/lib/DomainInput.svelte` for domain lists.
+- [ ] Show the tasks of the selected profile. Let the user add tasks before the session.
+- [ ] Add an optional input for the planned length in minutes.
+- [ ] Add a "start session" button. Send `start` with the profile and the planned length.
+- [ ] Remove the `start` button from `TaskRow.svelte`.
+
+### Session view
+
+The app shows the session view when a session is active.
+
+- [ ] Show the profile name in the session HUD.
+- [ ] Show only the tasks of the active profile.
+- [ ] Let the user add tasks during the session.
+- [ ] Set `completed` on a task when its status changes to `done`.
 
 ### Fix the listener defect
 
@@ -234,9 +283,9 @@ The `$effect` in `+page.svelte` has a defect. When `fullscreen` is true, the cle
 - [x] Put the document listeners in their own `$effect`.
 - [x] Make that `$effect` always return a cleanup that removes the listeners.
 
-**Done when:** a session continues after the app tab closes and opens again. The tasks also stay after a browser restart.
+**Done when:** a profile and its tasks stay after a browser restart. A session continues after the app tab closes and opens again. A task that the user adds during a session stays.
 
-## Phase 3: Per-task allowlist and block page
+## Phase 3: Profile rules and block page
 
 ### Permissions
 
@@ -244,30 +293,31 @@ The `$effect` in `+page.svelte` has a defect. When `fullscreen` is true, the cle
 - [ ] Add `"host_permissions": ["<all_urls>"]`. A redirect rule needs host access.
 - [ ] Add `blocked.html` to `web_accessible_resources` for `<all_urls>`.
 
-### Task and settings UI
+### Settings UI
 
-- [ ] Add an allowed-domains input to `AddTaskRow.svelte`.
-- [ ] Show the allowed domains in `TaskRow.svelte`.
 - [ ] Add a settings view at the `#/settings` route.
 - [ ] Add an editor for the `alwaysBlocked` list to the settings view.
 - [ ] Add an "allow localhost" option to the settings view.
 
 ### Block rules
 
-- [ ] Write `buildRules(task, alwaysBlocked)` in `src/background/rules.ts`.
-- [ ] Make rule 1 a redirect for all `main_frame` requests.
-- [ ] Add one `allow` rule with a higher priority for each allowed domain.
-- [ ] Add one redirect rule with the highest priority for each `alwaysBlocked` domain.
+- [ ] Write `Rules.build(profile, alwaysBlocked, settings)` in `src/background/rules.ts`.
+- [ ] In whitelist mode, add a redirect rule for all `main_frame` requests. Use priority 1.
+- [ ] Add one `allow` rule for each whitelist domain. Use priority 2.
+- [ ] Add one redirect rule for each blacklist domain. Use priority 3.
+- [ ] Add one redirect rule for each `alwaysBlocked` domain. Use priority 5.
 - [ ] Always allow `chrome-extension://` URLs.
-- [ ] On `start` and `switchTask`, remove all dynamic rules. Then add the new rules.
+- [ ] On `start`, remove all dynamic rules. Then add the new rules.
 - [ ] On `stop`, remove all dynamic rules.
 
-Set the redirect to the extension page with the blocked URL as a parameter:
+Priority 4 is for overrides in Phase 4. Thus an override wins over the blacklist but not over `alwaysBlocked`.
+
+Get the extension URL at runtime with `chrome.runtime.getURL('blocked.html')`. Set the redirect to this URL with the blocked URL as a parameter:
 
 ```ts
 {
 	type: 'redirect',
-	redirect: { regexSubstitution: 'chrome-extension://<id>/blocked.html?url=\\0' }
+	redirect: { regexSubstitution: chrome.runtime.getURL('blocked.html') + '?url=\\0' }
 }
 ```
 
@@ -276,22 +326,23 @@ Set the redirect to the extension page with the blocked URL as a parameter:
 - [ ] Create `static/blocked.html` and `static/blocked.js`. Keep this page separate from the Svelte app.
 - [ ] Use plain JS in `blocked.js`. Vite copies `static` files and does not compile them.
 - [ ] Read the `url` parameter. Show the blocked domain.
-- [ ] Read `activeTaskId` from storage. Show the task name.
+- [ ] Read `activeProfileId` from storage. Show the profile name.
 - [ ] Add a "back to work" button that opens the app tab.
 - [ ] Send a `blocked` message to the worker on page load.
 - [ ] In the worker, record a `BlockAttempt` for each `blocked` message.
 
-**Done when:** a started task blocks all sites that are not on its list. The block page shows the task name.
+**Done when:** a blacklist profile blocks only its blacklist. A whitelist profile blocks all sites that are not on its whitelist. The block page shows the profile name.
 
 ## Phase 4: Override with friction
 
 A hard block makes the user disable the extension. A wait and a logged reason make an override cost something.
 
 - [ ] Add an "I need this site" button to the block page.
+- [ ] Hide the button for `alwaysBlocked` domains.
 - [ ] Disable the button for 30 seconds. Show a countdown.
 - [ ] Show a text field for the reason. Require 10 or more characters.
 - [ ] On submit, send an `override` message with the domain and the reason.
-- [ ] In the worker, add an `allow` rule for the domain.
+- [ ] In the worker, add an `allow` rule with priority 4 for the domain.
 - [ ] Create an alarm that removes the rule after 10 minutes.
 - [ ] Set `overridden: true` and `reason` on the `BlockAttempt`.
 - [ ] Reload the original URL.
@@ -327,9 +378,9 @@ A hard block makes the user disable the extension. A wait and a logged reason ma
 
 ### Display
 
-- [ ] Show the time on each domain for the active task in the app.
+- [ ] Show the time on each domain for the active session in the app.
 
-**Done when:** the app shows the time per domain for each task. Idle time does not count.
+**Done when:** the app shows the time per domain for the session. Idle time does not count.
 
 ## Phase 6: Timeline integration
 
@@ -337,23 +388,23 @@ Read `timeline.svelte.ts` before this phase. Each change must keep the tick and 
 
 - [x] Change `TimelineEvent` to use a `Session` for `extended` events.
 - [x] Show each `Session` as an `extended` event.
+- [ ] Show the profile name in the hover text of a session.
 - [ ] Show each `BlockAttempt` as a `single` event.
 - [ ] Use a different color for an overridden attempt.
 - [ ] Show the domain and the reason in the hover text of an attempt.
-- [ ] Update the tick calculation for many sessions per task.
-- [ ] Update the mark calculation for many sessions per task.
+- [ ] Show each finished task as a `single` event.
 
 **Done when:** one day of work shows as sessions and marks on the timeline.
 
-## Phase 7: Review and estimates
+## Phase 7: Review and history
 
-- [ ] Add an estimate input in minutes to `AddTaskRow.svelte`.
 - [ ] Add a review view at the `#/review` route.
-- [ ] Show the estimate and the actual time for each finished task.
-- [ ] Show the total time for each task in the current day.
-- [ ] Show the total time for each domain in the current day.
+- [ ] Show the total time for each profile in the day.
+- [ ] Show the total time for each domain in the day.
 - [ ] Show the count of block attempts and the count of overrides.
 - [ ] Show the longest session with no idle time.
+- [ ] Show the tasks that the user finished in the day.
+- [ ] Show a list of all sessions in the day. Show the planned length and the actual length.
 - [ ] Add a date picker to show an earlier day.
 
 **Done when:** the review view shows correct data for the current day.
@@ -369,17 +420,20 @@ Read `timeline.svelte.ts` before this phase. Each change must keep the tick and 
 
 ### Deep mode
 
-- [ ] Add a `deepMode` option to each task.
-- [ ] When a deep mode task starts, use the current fullscreen lock.
-- [ ] Block all sites during deep mode, including the allowed domains.
+- [ ] Add a `deepMode` option to the profile editor.
+- [ ] When a deep mode session starts, use the current fullscreen lock.
+- [ ] Block all sites during deep mode, including the whitelist domains.
 
 ### Exit log
 
 - [ ] Log each session that ends before its planned end.
-- [ ] At worker startup, look for a gap in `samples` during an active session.
+- [ ] Write a `lastSeen` time on a heartbeat alarm each minute.
+- [ ] At worker startup, look for a gap in `lastSeen` during an active session.
 - [ ] Log each gap as a possible disable of the extension.
 
-**Done when:** a break removes the blocks and adds them again. A deep mode task uses fullscreen.
+Do not look for gaps in `samples`. Idle time also makes gaps in `samples`.
+
+**Done when:** a break removes the blocks and adds them again. A deep mode session uses fullscreen.
 
 ## Limits
 
