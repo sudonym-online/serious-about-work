@@ -195,8 +195,8 @@ SvelteKit has a service worker build. The worker uses this build, not a second V
 
 ### Shared code
 
-- [ ] Create `src/lib/messages.ts`. Define one type for each message.
-- [ ] Create `src/lib/storage.ts`. Put the typed get and set functions for each storage key here.
+- [x] Create `src/lib/messages.ts`. Define one type for each message.
+- [x] Create `src/lib/storage.ts`. Put the typed get and set functions for each storage key here.
 - [ ] Use `storage.ts` from the worker and from the app. Do not call `chrome.storage` directly.
 
 ```ts

@@ -78,10 +78,13 @@
 
 		const now = new Date();
 		tasks.unshift({
+			id: crypto.randomUUID(),
 			name: draft.name || 'Untitled Task',
 			description: draft.description,
 			due: draft.due ? new Date(`${draft.due}T00:00`) : null,
 			status: draft.status,
+			estimate: null,
+			allowedDomains: [],
 			start: draft.status === 'in-progress' ? now : null,
 			end: null
 		});

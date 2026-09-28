@@ -3,12 +3,51 @@ export type Status = 'todo' | 'in-progress' | 'done';
 export type SortKey = 'added' | 'date' | 'status' | 'name';
 
 export interface Task {
-	name: string;
-	description: string;
-	due: Date | null;
-	status: Status;
-	start: Date | null;
-	end: Date | null;
+	id:                 string;
+	name:               string;
+	description:        string;
+	due:                Date | null;
+	status:             Status;
+	estimate:           number | null; // minutes
+	allowedDomains:     string[];
+	// TODO: remove when the app reads sessions from the worker.
+	start:              Date | null;
+	end:                Date | null;
+}
+
+export interface Session {
+	taskId:             string;
+	start:              Date;
+	end:                Date | null;
+}
+
+export interface ActivitySample {
+	taskId:             string;
+	domain:             string;
+	start:              Date;
+	end:                Date;
+}
+
+export interface OpenSample {
+	taskId:             string;
+	domain:             string;
+	start:              Date;
+}
+
+export interface BlockAttempt {
+	taskId:             string;
+	domain:             string;
+	time:               Date;
+	overridden:         boolean;
+	reason:             string | null;
+}
+
+export interface Settings {
+	idleSeconds:        number;
+	overrideWaitSec:    number;
+	overrideAllowMin:   number;
+	breakMin:           number;
+	allowLocalhost:     boolean;
 }
 
 export type TimelineKind = 'single' | 'extended';
