@@ -289,15 +289,15 @@ The `$effect` in `+page.svelte` has a defect. When `fullscreen` is true, the cle
 
 ### Permissions
 
-- [ ] Add `"declarativeNetRequest"` to `permissions`.
-- [ ] Add `"host_permissions": ["<all_urls>"]`. A redirect rule needs host access.
-- [ ] Add `blocked.html` to `web_accessible_resources` for `<all_urls>`.
+- [x] Add `"declarativeNetRequest"` to `permissions`.
+- [x] Add `"host_permissions": ["<all_urls>"]`. A redirect rule needs host access.
+- [x] Add `blocked.html` to `web_accessible_resources` for `<all_urls>`.
 
 ### Settings UI
 
-- [ ] Add a settings view at the `#/settings` route.
-- [ ] Add an editor for the `alwaysBlocked` list to the settings view.
-- [ ] Add an "allow localhost" option to the settings view.
+- [x] Add a settings view at the `#/settings` route.
+- [x] Add an editor for the `alwaysBlocked` list to the settings view.
+- [x] Add an "allow localhost" option to the settings view.
 
 ### Block rules
 

@@ -2,14 +2,28 @@
 	"manifest_version": 3,
 	"name": "Serious About Work",
 	"version": "0.0.1",
-	"description": "Blocks distractions and tracks time on each task.",
+	"description": "Blocks distractions and tracks the time of each session.",
 	"background": {
 		"service_worker": "service-worker.js",
 		"type": "module"
 	},
 	"permissions": [
 		"storage",
-		"alarms"
+		"alarms",
+		"declarativeNetRequest"
+	],
+	"host_permissions": [
+		"<all_urls>"
+	],
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"blocked.html"
+			],
+			"matches": [
+				"<all_urls>"
+			]
+		}
 	],
 	"action": {
 		"default_title": "Serious About Work",
