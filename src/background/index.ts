@@ -2,6 +2,7 @@
 // so all state lives in chrome.storage and every listener is registered at the top level.
 import type { Message, State } from '$lib/messages';
 import { Storage, pack } from '$lib/storage';
+import { Rules } from './rules';
 
 const APP_URL = chrome.runtime.getURL('index.html');
 
@@ -13,6 +14,21 @@ const queue = <T>(fn: () => Promise<T>): Promise<T> => {
 	return next;
 };
 
+// ------------------- RULES -------------------
+
+const applyRules = async () => {
+	const { profiles, activeProfileId, alwaysBlocked, settings } = await Storage.getAll();
+	const profile = profiles.find((p) => p.id === activeProfileId);
+	if (!profile) return Rules.clear();
+	await Rules.apply(Rules.build(profile, alwaysBlocked, settings));
+};
+
+// A list edit during a session takes effect at once.
+Storage.onChange((changes) => {
+	if (!changes.profiles && !changes.alwaysBlocked && !changes.settings) return;
+	queue(applyRules);
+});
+
 // ------------------- SESSION -------------------
 
 const startSession = async (profileId: string, planned: number | null) => {
@@ -22,6 +38,8 @@ const startSession = async (profileId: string, planned: number | null) => {
 	sessions.push({ id: crypto.randomUUID(), profileId, start: new Date(), end: null, planned });
 	await Storage.set('sessions', sessions);
 	await Storage.set('activeProfileId', profileId);
+	await Rules.clear();
+	await applyRules();
 	console.log(`[worker] session started: ${profileId}`);
 };
 
@@ -33,6 +51,7 @@ const stopSession = async () => {
 	session.end = new Date();
 	await Storage.set('sessions', sessions);
 	await Storage.set('activeProfileId', null);
+	await Rules.clear();
 	console.log(`[worker] session stopped: ${session.profileId}`);
 };
 

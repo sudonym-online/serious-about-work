@@ -301,14 +301,14 @@ The `$effect` in `+page.svelte` has a defect. When `fullscreen` is true, the cle
 
 ### Block rules
 
-- [ ] Write `Rules.build(profile, alwaysBlocked, settings)` in `src/background/rules.ts`.
-- [ ] In whitelist mode, add a redirect rule for all `main_frame` requests. Use priority 1.
-- [ ] Add one `allow` rule for each whitelist domain. Use priority 2.
-- [ ] Add one redirect rule for each blacklist domain. Use priority 3.
-- [ ] Add one redirect rule for each `alwaysBlocked` domain. Use priority 5.
-- [ ] Always allow `chrome-extension://` URLs.
-- [ ] On `start`, remove all dynamic rules. Then add the new rules.
-- [ ] On `stop`, remove all dynamic rules.
+- [x] Write `Rules.build(profile, alwaysBlocked, settings)` in `src/background/rules.ts`.
+- [x] In whitelist mode, add a redirect rule for all `main_frame` requests. Use priority 1.
+- [x] Add one `allow` rule for each whitelist domain. Use priority 2.
+- [x] Add one redirect rule for each blacklist domain. Use priority 3.
+- [x] Add one redirect rule for each `alwaysBlocked` domain. Use priority 5.
+- [x] Always allow `chrome-extension://` URLs.
+- [x] On `start`, remove all dynamic rules. Then add the new rules.
+- [x] On `stop`, remove all dynamic rules.
 
 Priority 4 is for overrides in Phase 4. Thus an override wins over the blacklist but not over `alwaysBlocked`.
 
