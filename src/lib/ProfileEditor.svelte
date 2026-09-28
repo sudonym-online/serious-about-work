@@ -8,7 +8,7 @@
 		onDelete
 	}: { profile: Profile; onChange: () => void; onDelete: (profile: Profile) => void } = $props();
 
-	let mode = $derived(profile.allowed.length > 0 ? 'whitelist' : 'blacklist');
+	let mode = $derived(profile.whitelist.length > 0 ? 'whitelist' : 'blacklist');
 </script>
 
 <div class="profile-editor">
@@ -23,12 +23,12 @@
 
 	<label>
 		<span>whitelist</span>
-		<DomainInput domains={profile.allowed} placeholder="github.com" {onChange} />
+		<DomainInput domains={profile.whitelist} placeholder="github.com" {onChange} />
 	</label>
 
 	<label>
 		<span>blacklist</span>
-		<DomainInput domains={profile.blocked} placeholder="youtube.com" {onChange} />
+		<DomainInput domains={profile.blacklist} placeholder="youtube.com" {onChange} />
 	</label>
 
 	<button onclick={() => onDelete(profile)}>delete profile</button>

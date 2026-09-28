@@ -5,8 +5,8 @@ export type SortKey = 'added' | 'date' | 'status' | 'name';
 export interface Profile {
 	id:                 string;
 	name:               string;
-	allowed:            string[];
-	blocked:            string[];
+	whitelist:          string[];
+	blacklist:          string[];
 	deepMode:           boolean;
 }
 

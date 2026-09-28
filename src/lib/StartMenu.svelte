@@ -18,8 +18,8 @@
 		const profile: Profile = {
 			id:         crypto.randomUUID(),
 			name:       'New Profile',
-			allowed:    [],
-			blocked:    [],
+			whitelist:  [],
+			blacklist:  [],
 			deepMode:   false
 		};
 		session.profiles.push(profile);

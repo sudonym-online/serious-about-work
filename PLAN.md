@@ -58,8 +58,8 @@ Put these types in `src/lib/types.ts`:
 interface Profile {
 	id:             string;
 	name:           string;
-	allowed:        string[];      // whitelist
-	blocked:        string[];      // blacklist
+	whitelist:      string[];
+	blacklist:      string[];
 	deepMode:       boolean;
 }
 

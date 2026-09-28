@@ -6,16 +6,16 @@ const { RuleActionType, ResourceType } = chrome.declarativeNetRequest;
 
 export const PRIORITY = {
 	catchAll:           1,
-	allowed:            2,
-	blocked:            3,
+	whitelist:          2,
+	blacklist:          3,
 	override:           4,
 	alwaysBlocked:      5
 };
 
 export const RULE_ID = {
 	catchAll:           1,
-	allowed:            1000,
-	blocked:            2000,
+	whitelist:          1000,
+	blacklist:          2000,
 	override:           3000,
 	alwaysBlocked:      4000
 };
@@ -49,16 +49,18 @@ export const allow = (id: number, priority: number, domains: string[]): Rule => 
 
 const build = (profile: Profile, alwaysBlocked: string[], settings: Settings): Rule[] => {
 	const rules: Rule[] = [];
-	const whitelist = profile.allowed.length > 0;
+	const whitelistMode = profile.whitelist.length > 0;
 
-	if (whitelist) {
+	if (whitelistMode) {
 		rules.push(redirect(RULE_ID.catchAll, PRIORITY.catchAll));
-		const allowed = settings.allowLocalhost ? [...profile.allowed, ...LOCALHOST] : profile.allowed;
-		allowed.forEach((domain, i) => rules.push(allow(RULE_ID.allowed + i, PRIORITY.allowed, [domain])));
+		const whitelist = settings.allowLocalhost ? [...profile.whitelist, ...LOCALHOST] : profile.whitelist;
+		whitelist.forEach((domain, i) =>
+			rules.push(allow(RULE_ID.whitelist + i, PRIORITY.whitelist, [domain]))
+		);
 	}
 
-	profile.blocked.forEach((domain, i) =>
-		rules.push(redirect(RULE_ID.blocked + i, PRIORITY.blocked, [domain]))
+	profile.blacklist.forEach((domain, i) =>
+		rules.push(redirect(RULE_ID.blacklist + i, PRIORITY.blacklist, [domain]))
 	);
 	alwaysBlocked.forEach((domain, i) =>
 		rules.push(redirect(RULE_ID.alwaysBlocked + i, PRIORITY.alwaysBlocked, [domain]))
