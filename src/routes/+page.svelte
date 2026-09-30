@@ -3,6 +3,7 @@
 	import { Timeline } from '$lib/timeline.svelte';
 	import { session } from '$lib/session.svelte';
 	import { send } from '$lib/messages';
+	import { Storage } from '$lib/storage';
 	import LogPanel from '$lib/LogPanel.svelte';
 	import SessionHud from '$lib/SessionHud.svelte';
 	import StartMenu from '$lib/StartMenu.svelte';
@@ -22,6 +23,7 @@
 	let tenths = $state(0);
 	let jitter = $state('00');
 	let logs: Log[] = $state([]);
+	let lastOverride = 0;
 
 	const log = (content: string, date: Date, color: string) => {
 		logs.push({ content, date, color });
@@ -75,6 +77,16 @@
 		session.load();
 		return session.listen();
 	});
+
+	$effect(() =>
+		Storage.onChange(({ blockAttempts }) => {
+			const attempt = blockAttempts?.findLast((a) => a.overridden);
+			if (!attempt || attempt.sessionId !== session.active?.id) return;
+			if (attempt.time.getTime() === lastOverride) return;
+			lastOverride = attempt.time.getTime();
+			log(`override: ${attempt.domain} (${attempt.reason})`, new Date(), 'orange');
+		})
+	);
 
 	$effect(() => {
 		document.addEventListener('fullscreenchange', changeFullscreen);

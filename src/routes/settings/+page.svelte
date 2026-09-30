@@ -32,5 +32,15 @@
 			<input type="checkbox" bind:checked={settings.allowLocalhost} onchange={saveSettings} />
 			<span>allow localhost in whitelist mode</span>
 		</label>
+
+		<label>
+			<span>override wait (seconds)</span>
+			<input type="number" min="0" bind:value={settings.overrideWaitSec} onchange={saveSettings} />
+		</label>
+
+		<label>
+			<span>override time (minutes)</span>
+			<input type="number" min="1" bind:value={settings.overrideAllowMin} onchange={saveSettings} />
+		</label>
 	{/if}
 </div>

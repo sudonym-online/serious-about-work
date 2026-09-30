@@ -84,4 +84,19 @@ const clear = async () => {
 	console.log('[rules] cleared');
 };
 
-export const Rules = { build, apply, clear };
+const addOverride = async (domain: string) => {
+	const used = new Set((await chrome.declarativeNetRequest.getDynamicRules()).map((r) => r.id));
+	let id = RULE_ID.override;
+	while (used.has(id)) id++;
+	await chrome.declarativeNetRequest.updateDynamicRules({
+		addRules: [allow(id, PRIORITY.override, [domain])]
+	});
+	return id;
+};
+
+const overrideIds = async () =>
+	(await chrome.declarativeNetRequest.getDynamicRules()).map((r) => r.id).filter(isOverride);
+
+const remove = (ids: number[]) => chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: ids });
+
+export const Rules = { build, apply, clear, addOverride, overrideIds, remove };

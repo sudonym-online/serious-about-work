@@ -6,6 +6,7 @@ export type Message =
 	| { type: 'stop' }
 	| { type: 'getState' }
 	| { type: 'blocked'; domain: string }
+	| { type: 'override'; domain: string; reason: string }
 	| { type: 'openApp' };
 
 export interface State {

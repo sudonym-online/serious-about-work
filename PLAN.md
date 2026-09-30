@@ -337,16 +337,16 @@ Get the extension URL at runtime with `chrome.runtime.getURL('blocked.html')`. S
 
 A hard block makes the user disable the extension. A wait and a logged reason make an override cost something.
 
-- [ ] Add an "I need this site" button to the block page.
-- [ ] Hide the button for `alwaysBlocked` domains.
-- [ ] Disable the button for 30 seconds. Show a countdown.
-- [ ] Show a text field for the reason. Require 10 or more characters.
-- [ ] On submit, send an `override` message with the domain and the reason.
-- [ ] In the worker, add an `allow` rule with priority 4 for the domain.
-- [ ] Create an alarm that removes the rule after 10 minutes.
-- [ ] Set `overridden: true` and `reason` on the `BlockAttempt`.
-- [ ] Reload the original URL.
-- [ ] Put the wait and the allow time in `settings`.
+- [x] Add an "I need this site" button to the block page.
+- [x] Hide the button for `alwaysBlocked` domains.
+- [x] Disable the button for 30 seconds. Show a countdown.
+- [x] Show a text field for the reason. Require 10 or more characters.
+- [x] On submit, send an `override` message with the domain and the reason.
+- [x] In the worker, add an `allow` rule with priority 4 for the domain.
+- [x] Create an alarm that removes the rule after 10 minutes.
+- [x] Set `overridden: true` and `reason` on the `BlockAttempt`.
+- [x] Reload the original URL.
+- [x] Put the wait and the allow time in `settings`.
 
 **Done when:** an override opens the site. The site is blocked again after 10 minutes. The log shows the reason.
 

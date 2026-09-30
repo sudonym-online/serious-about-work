@@ -30,6 +30,13 @@
 			.profile {
 				opacity: 0.7;
 			}
+
+			form {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				width: 320px;
+			}
 		</style>
 	</head>
 	<body>
@@ -37,6 +44,10 @@
 		<p class="domain" id="domain"></p>
 		<p class="profile" id="profile"></p>
 		<button id="back">back to work</button>
+		<form id="override" hidden>
+			<input id="reason" required minlength="10" placeholder="why do you need this site?" />
+			<button id="need" disabled>I need this site</button>
+		</form>
 
 		<script src="blocked.js"></script>
 	</body>
