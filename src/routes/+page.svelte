@@ -11,7 +11,7 @@
 	const timeline = new Timeline(() =>
 		session.sessions.flatMap((s): TimelineEvent[] => {
 			const profile = session.profiles.find((p) => p.id === s.profileId);
-			return profile ? [{ kind: 'extended', profile, session: s }] : [];
+			return profile ? [{ profile, session: s }] : [];
 		})
 	);
 
@@ -106,8 +106,6 @@
 		return () => cancelAnimationFrame(frame);
 	});
 </script>
-
-<!-- <h1>SERIOUS ABOUT WORK</h1> -->
 
 {#if session.loaded && session.active}
 	<LogPanel {logs} />

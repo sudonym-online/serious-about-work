@@ -1,4 +1,4 @@
-import type { TimelineEvent, TimelineKind } from '$lib/types';
+import type { TimelineEvent } from '$lib/types';
 
 export const PX_PER_MINUTE = 24;
 export const WIDTH = 600;
@@ -15,7 +15,6 @@ export interface Tick {
 
 export interface Mark {
 	id: number;
-	kind: TimelineKind;
 	right: number;
 	width: number;
 }
@@ -57,29 +56,18 @@ export class Timeline {
 
 	marks: Mark[] = $derived.by(() => {
 		const marks: Mark[] = [];
-		this.events.forEach((event, id) => {
-			if (event.kind === 'single') {
-				const right = this.toRight(event.time.getTime());
-				if (right <= WIDTH) marks.push({ id, kind: event.kind, right, width: 0 });
-				return;
-			}
-
-			const start = event.session.start.getTime();
-			const end = event.session.end?.getTime() ?? this.now;
+		this.events.forEach(({ session }, id) => {
+			const start = session.start.getTime();
+			const end = session.end?.getTime() ?? this.now;
 			const right = this.toRight(end);
 			if (right > WIDTH) return;
-			marks.push({ id, kind: event.kind, right, width: ((end - start) / MINUTE) * PX_PER_MINUTE });
+			marks.push({ id, right, width: ((end - start) / MINUTE) * PX_PER_MINUTE });
 		});
 		return marks;
 	});
 
 	describe(id: number): Tip {
-		const event = this.events[id];
-		if (event.kind === 'single') {
-			return { title: event.task.name, lines: [event.time.toLocaleTimeString()] };
-		}
-
-		const { profile, session } = event;
+		const { profile, session } = this.events[id];
 		const end = session.end?.getTime() ?? this.now;
 		return {
 			title: profile.name,

@@ -4,7 +4,7 @@ type Rule = chrome.declarativeNetRequest.Rule;
 
 const { RuleActionType, ResourceType } = chrome.declarativeNetRequest;
 
-export const PRIORITY = {
+const PRIORITY = {
 	catchAll:           1,
 	whitelist:          2,
 	blacklist:          3,
@@ -12,7 +12,7 @@ export const PRIORITY = {
 	alwaysBlocked:      5
 };
 
-export const RULE_ID = {
+const RULE_ID = {
 	catchAll:           1,
 	whitelist:          1000,
 	blacklist:          2000,
@@ -40,7 +40,7 @@ const redirect = (id: number, priority: number, domains?: string[]): Rule => ({
 	}
 });
 
-export const allow = (id: number, priority: number, domains: string[]): Rule => ({
+const allow = (id: number, priority: number, domains: string[]): Rule => ({
 	id,
 	priority,
 	action: { type: RuleActionType.ALLOW },

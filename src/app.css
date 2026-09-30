@@ -102,26 +102,6 @@ h1 {
 
 .mark {
   position: absolute;
-}
-
-.mark.single {
-  z-index: 1;
-  top: 0;
-  bottom: 4px;
-  width: 8px;
-}
-
-.mark.single::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 2px;
-  background: rgb(20, 20, 210);
-}
-
-.mark.extended {
   top: 1px;
   bottom: 6px;
   background: rgb(120, 255, 80);

@@ -57,11 +57,10 @@ export interface Settings {
 	allowLocalhost:     boolean;
 }
 
-export type TimelineKind = 'single' | 'extended';
-
-export type TimelineEvent =
-	| { kind: 'single'; task: Task; time: Date }
-	| { kind: 'extended'; profile: Profile; session: Session };
+export interface TimelineEvent {
+	profile: Profile;
+	session: Session;
+}
 
 export interface Log {
 	content: string;

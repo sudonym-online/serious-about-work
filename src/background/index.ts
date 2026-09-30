@@ -34,7 +34,6 @@ const startSession = async (profileId: string, planned: number | null) => {
 	sessions.push({ id: crypto.randomUUID(), profileId, start: new Date(), end: null, planned });
 	await Storage.set('sessions', sessions);
 	await Storage.set('activeProfileId', profileId);
-	await Rules.clear();
 	await applyRules();
 	console.log(`[worker] session started: ${profileId}`);
 };
@@ -101,8 +100,4 @@ const handle = async (message: Message): Promise<unknown> => {
 chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
 	queue(() => handle(message)).then((result) => sendResponse(pack(result)));
 	return true;
-});
-
-chrome.runtime.onInstalled.addListener(() => {
-	console.log('[worker] installed');
 });
