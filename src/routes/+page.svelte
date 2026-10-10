@@ -16,6 +16,18 @@
 		})
 	);
 
+	const domainTimes = $derived.by(() => {
+		const id = session.active?.id;
+		const totals = new Map<string, number>();
+		const add = (domain: string, ms: number) => totals.set(domain, (totals.get(domain) ?? 0) + ms);
+		for (const s of session.samples) {
+			if (s.sessionId === id) add(s.domain, s.end.getTime() - s.start.getTime());
+		}
+		const open = session.openSample;
+		if (open && open.sessionId === id) add(open.domain, timeline.now - open.start.getTime());
+		return [...totals].sort((a, b) => b[1] - a[1]);
+	});
+
 	let fullscreen = $state(false);
 	let terminating = $state(false);
 	let disableFullscreenLock = $state(true);
@@ -128,6 +140,7 @@
 		{sessLength}
 		{tenths}
 		{jitter}
+		{domainTimes}
 		onStop={stopSession}
 	/>
 

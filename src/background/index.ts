@@ -1,6 +1,8 @@
-import type { Message, State } from '$lib/messages';
-import type { Profile } from '$lib/types';
-import { DEFAULT_SETTINGS, Storage, pack } from '$lib/storage';
+/// <reference types="chrome" />
+
+import type { Message, State } from '../lib/messages';
+import type { Profile, Session } from '../lib/types';
+import { DEFAULT_SETTINGS, Storage, pack } from '../lib/storage';
 import { Rules } from './rules';
 
 const APP_URL = chrome.runtime.getURL('index.html');
@@ -11,6 +13,11 @@ const queue = <T>(fn: () => Promise<T>): Promise<T> => {
 	const next = chain.then(fn, fn);
 	chain = next.catch(() => {});
 	return next;
+};
+
+const getActiveSession = async (): Promise<Session | null> => {
+	const sessions = await Storage.get('sessions');
+	return sessions.findLast((s) => s.end === null) ?? null;
 };
 
 // ------------------- RULES -------------------
@@ -55,6 +62,7 @@ const startSession = async (profileId: string, planned: number | null) => {
 	await Storage.set('sessions', sessions);
 	await Storage.set('activeProfileId', profileId);
 	await applyRules();
+	await syncSample();
 	console.log(`[worker] session started: ${profileId}`);
 };
 
@@ -68,6 +76,7 @@ const stopSession = async () => {
 	await Storage.set('activeProfileId', null);
 	await Rules.clear();
 	await chrome.alarms.clearAll();
+	await syncSample();
 	console.log(`[worker] session stopped: ${session.profileId}`);
 };
 
@@ -127,6 +136,8 @@ chrome.runtime.onStartup.addListener(() =>
 		const alarms = new Set((await chrome.alarms.getAll()).map((a) => a.name));
 		const orphans = (await Rules.overrideIds()).filter((id) => !alarms.has(OVERRIDE_ALARM + id));
 		await Rules.remove(orphans);
+		// ponytail: drops the sample open when Chrome quit, Phase 8 lastSeen can close it properly
+		await Storage.set('openSample', null);
 	})
 );
 
@@ -161,3 +172,58 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) =
 	queue(() => handle(message)).then((result) => sendResponse(pack(result)));
 	return true;
 });
+
+// ------------------ TRACKING -------------------
+
+const MIN_SAMPLE_MS = 2000;
+
+const domainOf = (url?: string): string | null => {
+	if (!url) return null;
+	try {
+		const u = new URL(url);
+		return u.protocol === 'http:' || u.protocol === 'https:' ? u.hostname : null;
+	} catch {
+		return null;
+	}
+};
+
+const getActiveDomain = async (): Promise<string | null> => {
+	const win = await chrome.windows.getLastFocused({ populate: true });
+	if (!win.focused) return null;
+	return domainOf(win.tabs?.find((t) => t.active)?.url);
+};
+
+const syncSample = async () => {
+	const session = await getActiveSession();
+	const { idleSeconds } = await Storage.get('settings');
+	const idle = (await chrome.idle.queryState(idleSeconds)) !== 'active';
+	const domain = session && !idle ? await getActiveDomain() : null;
+	const open = await Storage.get('openSample');
+	if (open?.sessionId === session?.id && open?.domain === domain) return;
+
+	const now = Date.now();
+	if (open) {
+		// idle fires after idleSeconds of no input, so that stretch was already idle
+		const end = Math.max(open.start.getTime(), idle ? now - idleSeconds * 1000 : now);
+		if (end - open.start.getTime() >= MIN_SAMPLE_MS) {
+			const samples = await Storage.get('samples');
+			samples.push({ ...open, end: new Date(end) });
+			await Storage.set('samples', samples);
+		}
+	}
+	await Storage.set(
+		'openSample',
+		session && domain ? { sessionId: session.id, domain, start: new Date(now) } : null
+	);
+};
+
+const setIdleInterval = async () =>
+	chrome.idle.setDetectionInterval(Math.max(15, (await Storage.get('settings')).idleSeconds));
+
+setIdleInterval();
+Storage.onChange((changes) => changes.settings && setIdleInterval());
+
+chrome.tabs.onActivated.addListener(() => queue(syncSample));
+chrome.tabs.onUpdated.addListener((_id, change) => change.url && queue(syncSample));
+chrome.windows.onFocusChanged.addListener(() => queue(syncSample));
+chrome.idle.onStateChanged.addListener(() => queue(syncSample));

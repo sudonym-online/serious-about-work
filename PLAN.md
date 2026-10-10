@@ -354,31 +354,31 @@ A hard block makes the user disable the extension. A wait and a logged reason ma
 
 ### Permissions
 
-- [ ] Add `"tabs"` and `"idle"` to `permissions`.
+- [x] Add `"tabs"` and `"idle"` to `permissions`.
 
 ### Events
 
-- [ ] Listen to `chrome.tabs.onActivated`.
-- [ ] Listen to `chrome.tabs.onUpdated`. Use only changes to `url`.
-- [ ] Listen to `chrome.windows.onFocusChanged`.
-- [ ] Call `chrome.idle.setDetectionInterval(60)`.
-- [ ] Listen to `chrome.idle.onStateChanged`.
+- [x] Listen to `chrome.tabs.onActivated`.
+- [x] Listen to `chrome.tabs.onUpdated`. Use only changes to `url`.
+- [x] Listen to `chrome.windows.onFocusChanged`.
+- [x] Call `chrome.idle.setDetectionInterval(60)`.
+- [x] Listen to `chrome.idle.onStateChanged`.
 
 ### Sample logic
 
-- [ ] Write `getActiveDomain()`. Return the domain of the active tab in the focused window.
-- [ ] Return `null` when no Chrome window has focus.
-- [ ] When the domain changes, close `openSample` and add it to `samples`.
-- [ ] Then start a new `openSample` for the new domain.
-- [ ] When the state changes to `idle` or `locked`, close `openSample`. Do not start a new sample.
-- [ ] When the state changes to `active`, start a new sample.
-- [ ] Record samples only while a session is active.
-- [ ] Do not record samples for extension pages.
-- [ ] Drop samples that are shorter than 2 seconds.
+- [x] Write `getActiveDomain()`. Return the domain of the active tab in the focused window.
+- [x] Return `null` when no Chrome window has focus.
+- [x] When the domain changes, close `openSample` and add it to `samples`.
+- [x] Then start a new `openSample` for the new domain.
+- [x] When the state changes to `idle` or `locked`, close `openSample`. Do not start a new sample.
+- [x] When the state changes to `active`, start a new sample.
+- [x] Record samples only while a session is active.
+- [x] Do not record samples for extension pages.
+- [x] Drop samples that are shorter than 2 seconds.
 
 ### Display
 
-- [ ] Show the time on each domain for the active session in the app.
+- [x] Show the time on each domain for the active session in the app.
 
 **Done when:** the app shows the time per domain for the session. Idle time does not count.
 

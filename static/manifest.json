@@ -10,7 +10,9 @@
 	"permissions": [
 		"storage",
 		"alarms",
-		"declarativeNetRequest"
+		"declarativeNetRequest",
+		"tabs",
+		"idle"
 	],
 	"host_permissions": [
 		"<all_urls>"
