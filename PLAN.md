@@ -388,11 +388,11 @@ Read `timeline.svelte.ts` before this phase. Each change must keep the tick and 
 
 - [x] Change `TimelineEvent` to use a `Session` for `extended` events.
 - [x] Show each `Session` as an `extended` event.
-- [ ] Show the profile name in the hover text of a session.
-- [ ] Show each `BlockAttempt` as a `single` event.
-- [ ] Use a different color for an overridden attempt.
-- [ ] Show the domain and the reason in the hover text of an attempt.
-- [ ] Show each finished task as a `single` event.
+- [x] Show the profile name in the hover text of a session.
+- [x] Show each `BlockAttempt` as a `single` event.
+- [x] Use a different color for an overridden attempt.
+- [x] Show the domain and the reason in the hover text of an attempt.
+- [x] Show each finished task as a `single` event.
 
 **Done when:** one day of work shows as sessions and marks on the timeline.
 
