@@ -23,7 +23,7 @@
 		{#each timeline.marks as mark (mark.id)}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div
-				class="mark"
+				class="mark {mark.kind}"
 				style="right: {mark.right}px; width: {mark.width}px;"
 				onpointerenter={() => (hoveredId = mark.id)}
 				onpointerleave={() => (hoveredId = null)}

@@ -9,12 +9,16 @@
 	import StartMenu from '$lib/StartMenu.svelte';
 	import TaskList from '$lib/TaskList.svelte';
 
-	const timeline = new Timeline(() =>
-		session.sessions.flatMap((s): TimelineEvent[] => {
+	const timeline = new Timeline((): TimelineEvent[] => [
+		...session.sessions.flatMap((s): TimelineEvent[] => {
 			const profile = session.profiles.find((p) => p.id === s.profileId);
-			return profile ? [{ profile, session: s }] : [];
-		})
-	);
+			return profile ? [{ kind: 'session', profile, session: s }] : [];
+		}),
+		...session.blockAttempts.map((attempt): TimelineEvent => ({ kind: 'attempt', attempt })),
+		...session.tasks
+			.filter((t) => t.completed)
+			.map((task): TimelineEvent => ({ kind: 'task', task }))
+	]);
 
 	const domainTimes = $derived.by(() => {
 		const id = session.active?.id;

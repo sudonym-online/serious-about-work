@@ -3,6 +3,7 @@ import type { TimelineEvent } from '$lib/types';
 export const PX_PER_MINUTE = 24;
 export const WIDTH = 600;
 export const MAJOR_EVERY = 10;
+const SINGLE_PX = 4;
 
 const MINUTE = 60_000;
 const WINDOW_MINUTES = Math.ceil(WIDTH / PX_PER_MINUTE);
@@ -17,6 +18,7 @@ export interface Mark {
 	id: number;
 	right: number;
 	width: number;
+	kind: 'session' | 'attempt' | 'override' | 'task';
 }
 
 export interface Tip {
@@ -56,18 +58,37 @@ export class Timeline {
 
 	marks: Mark[] = $derived.by(() => {
 		const marks: Mark[] = [];
-		this.events.forEach(({ session }, id) => {
-			const start = session.start.getTime();
-			const end = session.end?.getTime() ?? this.now;
-			const right = this.toRight(end);
+		this.events.forEach((event, id) => {
+			if (event.kind === 'session') {
+				const start = event.session.start.getTime();
+				const end = event.session.end?.getTime() ?? this.now;
+				const right = this.toRight(end);
+				if (right > WIDTH) return;
+				marks.push({ id, right, width: ((end - start) / MINUTE) * PX_PER_MINUTE, kind: 'session' });
+				return;
+			}
+			const time = event.kind === 'attempt' ? event.attempt.time : event.task.completed!;
+			const right = this.toRight(time.getTime()) - SINGLE_PX / 2;
 			if (right > WIDTH) return;
-			marks.push({ id, right, width: ((end - start) / MINUTE) * PX_PER_MINUTE });
+			const kind = event.kind === 'attempt' && event.attempt.overridden ? 'override' : event.kind;
+			marks.push({ id, right, width: SINGLE_PX, kind });
 		});
 		return marks;
 	});
 
 	describe(id: number): Tip {
-		const { profile, session } = this.events[id];
+		const event = this.events[id];
+		if (event.kind === 'attempt') {
+			const { domain, time, overridden, reason } = event.attempt;
+			return {
+				title: domain,
+				lines: [overridden ? `override: ${reason}` : 'blocked', time.toLocaleTimeString()]
+			};
+		}
+		if (event.kind === 'task') {
+			return { title: event.task.name, lines: ['done', event.task.completed!.toLocaleTimeString()] };
+		}
+		const { profile, session } = event;
 		const end = session.end?.getTime() ?? this.now;
 		return {
 			title: profile.name,

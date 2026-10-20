@@ -57,10 +57,10 @@ export interface Settings {
 	allowLocalhost:     boolean;
 }
 
-export interface TimelineEvent {
-	profile: Profile;
-	session: Session;
-}
+export type TimelineEvent =
+	| { kind: 'session'; profile: Profile; session: Session }
+	| { kind: 'attempt'; attempt: BlockAttempt }
+	| { kind: 'task'; task: Task };
 
 export interface Log {
 	content: string;
