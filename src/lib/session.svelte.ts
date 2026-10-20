@@ -1,4 +1,4 @@
-import type { ActivitySample, OpenSample, Profile, Session, Task } from '$lib/types';
+import type { ActivitySample, BlockAttempt, OpenSample, Profile, Session, Task } from '$lib/types';
 import { Storage } from '$lib/storage';
 
 export class SessionState {
@@ -8,6 +8,7 @@ export class SessionState {
 	activeProfileId:    string | null =     $state(null);
 	samples:            ActivitySample[] =  $state([]);
 	openSample:         OpenSample | null = $state(null);
+	blockAttempts:      BlockAttempt[] =    $state([]);
 	loaded =                                $state(false);
 
 	active: Session | null = $derived(this.sessions.findLast((s) => s.end === null) ?? null);
@@ -23,6 +24,7 @@ export class SessionState {
 		this.activeProfileId = all.activeProfileId;
 		this.samples = all.samples;
 		this.openSample = all.openSample;
+		this.blockAttempts = all.blockAttempts;
 		this.loaded = true;
 	}
 
@@ -34,6 +36,7 @@ export class SessionState {
 			if (changes.activeProfileId !== undefined) this.activeProfileId = changes.activeProfileId;
 			if (changes.samples) this.samples = changes.samples;
 			if (changes.openSample !== undefined) this.openSample = changes.openSample;
+			if (changes.blockAttempts) this.blockAttempts = changes.blockAttempts;
 		});
 	}
 
