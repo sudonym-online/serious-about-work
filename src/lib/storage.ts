@@ -42,7 +42,7 @@ const DEFAULTS: Schema = {
 	settings:           DEFAULT_SETTINGS
 };
 
-const DATE_FIELDS = new Set(['due', 'completed', 'start', 'end', 'time']);
+const DATE_FIELDS = new Set(['due', 'started', 'completed', 'start', 'end', 'time']);
 
 export const pack = (value: unknown): unknown => {
 	if (value instanceof Date) return value.getTime();

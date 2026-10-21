@@ -16,7 +16,7 @@
 		}),
 		...session.blockAttempts.map((attempt): TimelineEvent => ({ kind: 'attempt', attempt })),
 		...session.tasks
-			.filter((t) => t.completed)
+			.filter((t) => t.started || t.completed)
 			.map((task): TimelineEvent => ({ kind: 'task', task }))
 	]);
 

@@ -18,7 +18,7 @@ export interface Mark {
 	id: number;
 	right: number;
 	width: number;
-	kind: 'session' | 'attempt' | 'override' | 'task';
+	kind: 'session' | 'attempt' | 'override' | 'task' | 'task-bar';
 }
 
 export interface Tip {
@@ -67,6 +67,14 @@ export class Timeline {
 				marks.push({ id, right, width: ((end - start) / MINUTE) * PX_PER_MINUTE, kind: 'session' });
 				return;
 			}
+			if (event.kind === 'task' && event.task.started) {
+				const start = event.task.started.getTime();
+				const end = event.task.completed?.getTime() ?? this.now;
+				const right = this.toRight(end);
+				if (right > WIDTH) return;
+				marks.push({ id, right, width: ((end - start) / MINUTE) * PX_PER_MINUTE, kind: 'task-bar' });
+				return;
+			}
 			const time = event.kind === 'attempt' ? event.attempt.time : event.task.completed!;
 			const right = this.toRight(time.getTime()) - SINGLE_PX / 2;
 			if (right > WIDTH) return;
@@ -86,7 +94,17 @@ export class Timeline {
 			};
 		}
 		if (event.kind === 'task') {
-			return { title: event.task.name, lines: ['done', event.task.completed!.toLocaleTimeString()] };
+			const { name, status, started, completed } = event.task;
+			if (!started) return { title: name, lines: [status, completed!.toLocaleTimeString()] };
+			const end = completed?.getTime() ?? this.now;
+			return {
+				title: name,
+				lines: [
+					status,
+					`${started.toLocaleTimeString()} - ${completed?.toLocaleTimeString() ?? 'now'}`,
+					formatDuration(end - started.getTime())
+				]
+			};
 		}
 		const { profile, session } = event;
 		const end = session.end?.getTime() ?? this.now;

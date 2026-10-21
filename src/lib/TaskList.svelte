@@ -87,6 +87,7 @@
 			description: draft.description,
 			due: draft.due ? new Date(`${draft.due}T00:00`) : null,
 			status: draft.status,
+			started: draft.status === 'in-progress' ? now : null,
 			completed: draft.status === 'done' ? now : null
 		});
 		session.saveTasks();
@@ -100,6 +101,7 @@
 		const now = new Date();
 		if (task.status === 'todo') {
 			task.status = 'in-progress';
+			task.started = now;
 			log(`task in progress: ${task.name}`, now, 'blue');
 		} else {
 			task.status = 'done';

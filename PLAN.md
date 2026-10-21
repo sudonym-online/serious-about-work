@@ -70,6 +70,7 @@ interface Task {
 	description:    string;
 	due:            Date | null;
 	status:         Status;
+	started:        Date | null;
 	completed:      Date | null;
 }
 
