@@ -397,18 +397,22 @@ Read `timeline.svelte.ts` before this phase. Each change must keep the tick and 
 
 **Done when:** one day of work shows as sessions and marks on the timeline.
 
-## Phase 7: Review and history
+## Phase 7: Session review
 
-- [ ] Add a review view at the `#/review` route.
-- [ ] Show the total time for each profile in the day.
-- [ ] Show the total time for each domain in the day.
-- [ ] Show the count of block attempts and the count of overrides.
-- [ ] Show the longest session with no idle time.
-- [ ] Show the tasks that the user finished in the day.
-- [ ] Show a list of all sessions in the day. Show the planned length and the actual length.
-- [ ] Add a date picker to show an earlier day.
+The app opens a review of one session after the user clicks "stop session".
 
-**Done when:** the review view shows correct data for the current day.
+- [x] Add a review view at the `#/review/<id>` route.
+- [x] After `stop`, open the review of the stopped session.
+- [x] Show the profile name, the start time, and the end time.
+- [x] Show the planned length and the actual length.
+- [x] Show the tracked time and the idle or untracked time.
+- [x] Show the time on each domain.
+- [x] Show the count of block attempts and the count of overrides.
+- [x] Show each block attempt. Show the reason of each override.
+- [x] Show the tasks that the user finished during the session.
+- [x] Show "session not found" for an unknown id.
+
+**Done when:** "stop session" opens the review. The review shows data for that session only. A reload shows the same review.
 
 ## Phase 8: Optional modes
 
