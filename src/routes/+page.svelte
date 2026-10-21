@@ -2,6 +2,7 @@
 	import type { NavigatorWithKeyboardLock, Log, Profile, TimelineEvent } from '$lib/types';
 	import { Timeline } from '$lib/timeline.svelte';
 	import { session } from '$lib/session.svelte';
+	import { goto } from '$app/navigation';
 	import { send } from '$lib/messages';
 	import { Storage } from '$lib/storage';
 	import LogPanel from '$lib/LogPanel.svelte';
@@ -52,9 +53,11 @@
 	};
 
 	const stopSession = async () => {
+		const id = session.active?.id;
 		await send({ type: 'stop' });
 		if (document.fullscreenElement) await document.exitFullscreen();
 		log('session stopped', new Date(), 'red');
+		if (id) await goto(`#/review/${id}`);
 	};
 
 	const forceLock = async () => {
