@@ -1,42 +1,57 @@
-# sv
+# Serious About Work
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A Chrome extension that blocks distracting websites during focus sessions and tracks how the time was spent.
 
-## Creating a project
+[Demo video: [paste link]]
 
-If you're seeing this, you've probably already done this step. Congrats!
+[Screenshot or GIF: paste here]
 
-```sh
-# create a new project
-npx sv create my-app
-```
+## What it does
 
-To recreate this project with the same configuration:
+- **Profiles** (such as "school" or "work") each have a blacklist and a whitelist.
+  - Empty whitelist: only blacklisted sites are blocked.
+  - Non-empty whitelist: every other site is blocked.
+  - A global always-blocked list overrides both.
+- **Blocking** uses Chrome `declarativeNetRequest` redirect rules. A blocked site opens a block page that shows the domain and the profile.
+- **Overriding** takes effort. Wait 30 seconds, type a reason of at least 10 characters, and the site is allowed for 10 minutes. The reason is logged.
+- **Activity tracking** records time per domain from the active tab in the focused window. Idle time and visits under 2 seconds do not count.
+- **App page** has a start menu, a task checklist per profile, a session timer, and a timeline of sessions, block attempts, overrides, and finished tasks. It also has an optional fullscreen lock.
+- **Session review** shows planned and actual time, time per site, block attempts with override reasons, and finished tasks.
 
-```sh
-# recreate this project
-npx sv@0.17.0 create --template minimal --no-types --add prettier eslint --install npm ./
-```
+All data stays in the browser, in `chrome.storage`.
 
-## Developing
+## Tech stack
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- Svelte 5 and SvelteKit (`adapter-static`, hash routing)
+- TypeScript and Vite
+- Chrome Extension Manifest V3
+- Chrome APIs: `declarativeNetRequest`, `alarms`, `tabs`, `idle`, `storage`
 
-```sh
-npm run dev
+The background service worker owns the session state, so a session continues after the app tab closes.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+## Run it locally
 
-## Building
+1. Install dependencies:
 
-To create a production version of your app:
+   ```sh
+   npm install
+   ```
 
-```sh
-npm run build
-```
+2. Build the extension:
 
-You can preview the production build with `npm run preview`.
+   ```sh
+   npm run build
+   ```
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+3. Open `chrome://extensions`, turn on **Developer mode**, and click **Load unpacked**. Select the `build/` folder.
+
+For development, run `npm run dev:ext` to rebuild on each change. Reload the extension page after each rebuild.
+
+Other scripts:
+
+- `npm run check`: Svelte and TypeScript checks
+- `npm run lint`: ESLint
+
+## What I learned
+
+[Write this part in your own words.]
