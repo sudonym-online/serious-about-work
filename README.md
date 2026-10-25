@@ -51,7 +51,3 @@ Other scripts:
 
 - `npm run check`: Svelte and TypeScript checks
 - `npm run lint`: ESLint
-
-## What I learned
-
-[Write this part in your own words.]
